@@ -1,24 +1,21 @@
 
 import React from "react";
-import { useAuth } from "@/context/AuthContext";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
-import Dashboard from "@/components/Dashboard";
+import ReportGenerator from "@/components/ReportGenerator";
 
-const Index: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-
+const Reports: React.FC = () => {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header title="Dashboard" />
+        <Header title="Reports" />
         <main className="flex-1 overflow-y-auto p-6">
-          <Dashboard />
+          <ReportGenerator />
         </main>
       </div>
     </div>
   );
 };
 
-export default Index;
+export default Reports;
