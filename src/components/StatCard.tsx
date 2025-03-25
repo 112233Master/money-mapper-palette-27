@@ -15,6 +15,7 @@ interface StatCardProps {
   };
   className?: string;
   iconClassName?: string;
+  colorStyle?: "default" | "green" | "red" | "purple" | "amber";
 }
 
 const formatValue = (value: string | number): string => {
@@ -37,16 +38,47 @@ const StatCard: React.FC<StatCardProps> = ({
   trend,
   className,
   iconClassName,
+  colorStyle = "default",
 }) => {
+  // Define color styles for different card types
+  const colorStyles = {
+    default: {
+      card: "border-l-4 border-primary",
+      icon: "bg-primary/10 text-primary"
+    },
+    green: {
+      card: "border-l-4 border-finance-deposit",
+      icon: "bg-finance-deposit/10 text-finance-deposit"
+    },
+    red: {
+      card: "border-l-4 border-finance-withdrawal",
+      icon: "bg-finance-withdrawal/10 text-finance-withdrawal"
+    },
+    purple: {
+      card: "border-l-4 border-finance-balance",
+      icon: "bg-finance-balance/10 text-finance-balance"
+    },
+    amber: {
+      card: "border-l-4 border-finance-petty",
+      icon: "bg-finance-petty/10 text-finance-petty"
+    }
+  };
+
+  const selectedStyle = colorStyles[colorStyle];
+
   return (
-    <Card className={cn("overflow-hidden transition-all-200 hover:card-shadow-hover", className)}>
+    <Card className={cn(
+      "overflow-hidden transition-all-200 hover:card-shadow-hover", 
+      selectedStyle.card,
+      className
+    )}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {title}
           </CardTitle>
           {Icon && (
-            <div className={cn("p-2 rounded-md", iconClassName)}>
+            <div className={cn("p-2 rounded-md", selectedStyle.icon, iconClassName)}>
               <Icon className="h-5 w-5" />
             </div>
           )}
