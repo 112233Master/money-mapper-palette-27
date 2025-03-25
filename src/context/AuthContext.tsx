@@ -48,19 +48,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Demo login logic - in real app this would validate against backend
-      if (password === "admin123" && username.toLowerCase() === "admin") {
-        const userData: User = { id: 1, username: "admin", role: "admin" };
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-        toast.success("Welcome back, Admin!");
-        navigate("/");
-      } else if (password === "user123" && username.toLowerCase() === "user") {
-        const userData: User = { id: 2, username: "user", role: "user" };
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-        toast.success("Login successful!");
-        navigate("/");
+      // Get stored users from localStorage
+      const usersString = localStorage.getItem("users");
+      const users = usersString ? JSON.parse(usersString) : [
+        { id: 1, username: "admin", role: "admin" },
+        { id: 2, username: "user", role: "user" }
+      ];
+      
+      // If first login with no users stored yet, save the default users
+      if (!usersString) {
+        localStorage.setItem("users", JSON.stringify(users));
+        
+        // Also store default credentials
+        if (!localStorage.getItem("userCredentials")) {
+          const defaultCredentials = {
+            "admin": "admin123",
+            "user": "user123"
+          };
+          localStorage.setItem("userCredentials", JSON.stringify(defaultCredentials));
+        }
+      }
+
+      // Get credentials
+      const credentialsString = localStorage.getItem("userCredentials");
+      const credentials = credentialsString 
+        ? JSON.parse(credentialsString) 
+        : { "admin": "admin123", "user": "user123" };
+      
+      // Check login
+      if (credentials[username.toLowerCase()] === password) {
+        // Find the user in our users array
+        const foundUser = users.find((u: User) => 
+          u.username.toLowerCase() === username.toLowerCase()
+        );
+        
+        if (foundUser) {
+          setUser(foundUser);
+          localStorage.setItem("user", JSON.stringify(foundUser));
+          toast.success(`Welcome back, ${foundUser.username}!`);
+          navigate("/");
+        } else {
+          toast.error("User account issue. Please contact administrator.");
+        }
       } else {
         toast.error("Invalid username or password");
       }

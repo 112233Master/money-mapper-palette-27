@@ -13,6 +13,7 @@ import PettyCash from "./pages/PettyCash";
 import Category from "./pages/Category";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { FinanceProvider } from "./context/FinanceContext";
@@ -61,6 +62,7 @@ const AppRoutes = () => {
       <Route path="/category" element={<ProtectedRoute><Category /></ProtectedRoute>} />
       <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

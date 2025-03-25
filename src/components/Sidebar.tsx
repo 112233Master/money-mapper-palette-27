@@ -17,6 +17,7 @@ import {
   Tags,
   TrendingDown,
   TrendingUp,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -142,6 +143,14 @@ const Sidebar: React.FC = () => {
             isAdmin={isAdmin}
           />
           <Separator className="my-2 bg-sidebar-border" />
+          <SidebarItem
+            icon={<Users size={18} />}
+            title="User Management"
+            path="/users"
+            collapsed={collapsed}
+            adminOnly={true}
+            isAdmin={isAdmin}
+          />
           <SidebarItem
             icon={<Settings size={18} />}
             title="Settings"
