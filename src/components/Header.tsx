@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Bell, LayoutDashboard, User } from "lucide-react";
+import { Bell, LayoutDashboard, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
