@@ -8,7 +8,7 @@ import { Transaction, useFinance } from "@/context/FinanceContext";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Plus, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +32,7 @@ const PettyCash: React.FC = () => {
   
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<number | null>(null);
 
@@ -127,7 +128,15 @@ const PettyCash: React.FC = () => {
         <Header title="Petty Cash Transactions" />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6">
-            <TransactionForm type="petty-cash" />
+            <div className="flex justify-end">
+              <Button 
+                onClick={() => setIsAddDialogOpen(true)}
+                className="mb-4"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Petty Cash
+              </Button>
+            </div>
             
             <div className="bg-card rounded-lg border shadow-sm p-6">
               <h2 className="text-lg font-semibold mb-4">Petty Cash Records</h2>
@@ -141,6 +150,19 @@ const PettyCash: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* Add Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Add Petty Cash</DialogTitle>
+          </DialogHeader>
+          <TransactionForm
+            type="petty-cash"
+            onSuccess={() => setIsAddDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

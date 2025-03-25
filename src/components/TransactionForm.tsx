@@ -154,120 +154,106 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     }
   };
 
-  const typeLabel = type.charAt(0).toUpperCase() + type.slice(1).replace("-", " ");
-  
+  // Remove card wrapper since it will be in a dialog now
   return (
-    <Card className="w-full animate-fade-up">
-      <CardHeader>
-        <CardTitle>{transactionToEdit ? `Edit ${typeLabel}` : `Add ${typeLabel}`}</CardTitle>
-        <CardDescription>
-          {transactionToEdit
-            ? `Update the ${type.replace("-", " ")} details`
-            : `Record a new ${type.replace("-", " ")} transaction`}
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor={referenceField.name}>{referenceField.label}</Label>
-              <Input
-                id={referenceField.name}
-                name={referenceField.name}
-                placeholder={referenceField.placeholder}
-                value={referenceField.value}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !selectedDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedDate ? format(selectedDate, "dd/MM/yyyy") : "Select date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={handleDateChange}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount (Rs.)</Label>
-              <Input
-                id="amount"
-                name="amount"
-                type="number"
-                placeholder="Enter amount"
-                value={formData.amount || ""}
-                onChange={handleInputChange}
-                {...numberInputProps}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="categoryId">Category</Label>
-              <Select
-                value={formData.categoryId.toString()}
-                onValueChange={(value) => handleSelectChange("categoryId", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id.toString()}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              placeholder="Enter transaction details"
-              value={formData.description}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-        </CardContent>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor={referenceField.name}>{referenceField.label}</Label>
+          <Input
+            id={referenceField.name}
+            name={referenceField.name}
+            placeholder={referenceField.placeholder}
+            value={referenceField.value}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
         
-        <CardFooter className="border-t px-6 py-4">
-          <Button
-            type="submit"
-            className="ml-auto"
-            disabled={!isAdmin && !!transactionToEdit}
+        <div className="space-y-2">
+          <Label htmlFor="date">Date</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !selectedDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate ? format(selectedDate, "dd/MM/yyyy") : "Select date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateChange}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="amount">Amount (Rs.)</Label>
+          <Input
+            id="amount"
+            name="amount"
+            type="number"
+            placeholder="Enter amount"
+            value={formData.amount || ""}
+            onChange={handleInputChange}
+            {...numberInputProps}
+            required
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="categoryId">Category</Label>
+          <Select
+            value={formData.categoryId.toString()}
+            onValueChange={(value) => handleSelectChange("categoryId", value)}
           >
-            {transactionToEdit ? "Update" : "Save"}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          name="description"
+          placeholder="Enter transaction details"
+          value={formData.description}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      
+      <div className="flex justify-end pt-4">
+        <Button
+          type="submit"
+          disabled={!isAdmin && !!transactionToEdit}
+        >
+          {transactionToEdit ? "Update" : "Save"}
+        </Button>
+      </div>
+    </form>
   );
 };
 
