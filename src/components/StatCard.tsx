@@ -43,44 +43,44 @@ const StatCard: React.FC<StatCardProps> = ({
   // Define color styles for different card types
   const colorStyles = {
     default: {
-      card: "border-l-4 border-primary",
-      icon: "bg-primary/10 text-primary"
+      card: "border-l-4 border-primary bg-primary/5",
+      icon: "bg-primary/20 text-primary"
     },
     green: {
-      card: "border-l-4 border-finance-deposit",
-      icon: "bg-finance-deposit/10 text-finance-deposit"
+      card: "border-l-4 border-finance-deposit bg-finance-deposit/5",
+      icon: "bg-finance-deposit/20 text-finance-deposit"
     },
     red: {
-      card: "border-l-4 border-finance-withdrawal",
-      icon: "bg-finance-withdrawal/10 text-finance-withdrawal"
+      card: "border-l-4 border-finance-withdrawal bg-finance-withdrawal/5",
+      icon: "bg-finance-withdrawal/20 text-finance-withdrawal"
     },
     purple: {
-      card: "border-l-4 border-finance-balance",
-      icon: "bg-finance-balance/10 text-finance-balance"
+      card: "border-l-4 border-finance-balance bg-finance-balance/5",
+      icon: "bg-finance-balance/20 text-finance-balance"
     },
     amber: {
-      card: "border-l-4 border-finance-petty",
-      icon: "bg-finance-petty/10 text-finance-petty"
+      card: "border-l-4 border-finance-petty bg-finance-petty/5",
+      icon: "bg-finance-petty/20 text-finance-petty"
     },
     blue: {
-      card: "border-l-4 border-blue-500",
-      icon: "bg-blue-500/10 text-blue-500"
+      card: "border-l-4 border-blue-500 bg-blue-500/5",
+      icon: "bg-blue-500/20 text-blue-500"
     },
     pink: {
-      card: "border-l-4 border-pink-500",
-      icon: "bg-pink-500/10 text-pink-500"
+      card: "border-l-4 border-pink-500 bg-pink-500/5",
+      icon: "bg-pink-500/20 text-pink-500"
     },
     teal: {
-      card: "border-l-4 border-teal-500",
-      icon: "bg-teal-500/10 text-teal-500"
+      card: "border-l-4 border-teal-500 bg-teal-500/5",
+      icon: "bg-teal-500/20 text-teal-500"
     },
     orange: {
-      card: "border-l-4 border-orange-500",
-      icon: "bg-orange-500/10 text-orange-500"
+      card: "border-l-4 border-orange-500 bg-orange-500/5",
+      icon: "bg-orange-500/20 text-orange-500"
     },
     indigo: {
-      card: "border-l-4 border-indigo-500",
-      icon: "bg-indigo-500/10 text-indigo-500"
+      card: "border-l-4 border-indigo-500 bg-indigo-500/5",
+      icon: "bg-indigo-500/20 text-indigo-500"
     }
   };
 
@@ -94,7 +94,7 @@ const StatCard: React.FC<StatCardProps> = ({
     )}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardTitle className={`text-sm font-medium ${colorStyle !== 'default' ? 'text-foreground' : 'text-muted-foreground'}`}>
             {title}
           </CardTitle>
           {Icon && (
