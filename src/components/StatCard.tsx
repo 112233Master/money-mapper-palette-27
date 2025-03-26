@@ -15,7 +15,7 @@ interface StatCardProps {
   };
   className?: string;
   iconClassName?: string;
-  colorStyle?: "default" | "green" | "red" | "purple" | "amber";
+  colorStyle?: "default" | "green" | "red" | "purple" | "amber" | "blue" | "pink" | "teal" | "orange" | "indigo";
 }
 
 const formatValue = (value: string | number): string => {
@@ -61,6 +61,26 @@ const StatCard: React.FC<StatCardProps> = ({
     amber: {
       card: "border-l-4 border-finance-petty",
       icon: "bg-finance-petty/10 text-finance-petty"
+    },
+    blue: {
+      card: "border-l-4 border-blue-500",
+      icon: "bg-blue-500/10 text-blue-500"
+    },
+    pink: {
+      card: "border-l-4 border-pink-500",
+      icon: "bg-pink-500/10 text-pink-500"
+    },
+    teal: {
+      card: "border-l-4 border-teal-500",
+      icon: "bg-teal-500/10 text-teal-500"
+    },
+    orange: {
+      card: "border-l-4 border-orange-500",
+      icon: "bg-orange-500/10 text-orange-500"
+    },
+    indigo: {
+      card: "border-l-4 border-indigo-500",
+      icon: "bg-indigo-500/10 text-indigo-500"
     }
   };
 

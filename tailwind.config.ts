@@ -70,7 +70,23 @@ export default {
 					balance: 'hsl(var(--finance-balance))',
 					petty: 'hsl(var(--finance-petty))',
 					cash: 'hsl(var(--finance-cash))',
-				}
+				},
+				// Additional colors for StatCard variety
+				blue: {
+					500: '#3b82f6',
+				},
+				pink: {
+					500: '#ec4899',
+				},
+				teal: {
+					500: '#14b8a6',
+				},
+				orange: {
+					500: '#f97316',
+				},
+				indigo: {
+					500: '#6366f1',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

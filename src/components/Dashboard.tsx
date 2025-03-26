@@ -45,19 +45,19 @@ const Dashboard: React.FC = () => {
           title="Total Deposits"
           value={summary.totalDeposit}
           icon={BanknoteIcon}
-          colorStyle="green"
+          colorStyle="blue"
         />
         <StatCard
           title="Total Withdrawals"
           value={summary.totalWithdrawal}
           icon={Wallet}
-          colorStyle="red"
+          colorStyle="pink"
         />
         <StatCard
           title="Bank Balance"
           value={summary.bankBalance}
           icon={Building}
-          colorStyle="purple"
+          colorStyle="teal"
         />
       </div>
       
@@ -66,13 +66,13 @@ const Dashboard: React.FC = () => {
           title="Total Petty Cash"
           value={summary.totalPettyCash}
           icon={PiggyBank}
-          colorStyle="amber"
+          colorStyle="orange"
         />
         <StatCard
           title="Cash In Hand"
           value={summary.cashInHand}
           icon={Wallet}
-          colorStyle="default"
+          colorStyle="indigo"
         />
       </div>
 
