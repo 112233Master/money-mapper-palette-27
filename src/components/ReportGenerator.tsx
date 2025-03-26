@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { TransactionType, useFinance } from "@/context/FinanceContext";
 import {
@@ -29,6 +28,9 @@ import { cn } from "@/lib/utils";
 import { DataTable } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
 import { ColumnDef } from "@tanstack/react-table";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "sonner";
 
 interface ReportData {
   id: number;
@@ -95,9 +97,58 @@ const ReportGenerator: React.FC = () => {
   };
 
   const exportToPDF = () => {
-    // In a real application, you would implement PDF export here
-    // For demo purposes, we'll just show a success message
-    alert("PDF export would be implemented here with a library like jsPDF");
+    try {
+      // Create new PDF document
+      const doc = new jsPDF();
+      
+      // Add title
+      const reportTitle = `${reportType.charAt(0).toUpperCase() + reportType.slice(1).replace("-", " ")} Report`;
+      const dateRangeText = `${format(dateRange.from, "dd/MM/yyyy")} to ${format(dateRange.to, "dd/MM/yyyy")}`;
+      
+      doc.setFontSize(18);
+      doc.text(reportTitle, 14, 22);
+      
+      doc.setFontSize(11);
+      doc.text(dateRangeText, 14, 30);
+      
+      // Add timestamp
+      const timestamp = `Generated: ${format(new Date(), "dd/MM/yyyy HH:mm")}`;
+      doc.setFontSize(9);
+      doc.text(timestamp, 14, 36);
+      
+      // Create table
+      const tableColumn = ["Date", getReferenceHeader(), "Category", "Description", "Amount (Rs.)"];
+      const tableRows = generatedReport.map(item => [
+        item.date,
+        item.reference,
+        item.category,
+        item.description,
+        item.amount.toString()
+      ]);
+      
+      // Add total row
+      const totalAmount = getTotalAmount();
+      tableRows.push(["", "", "", "Total", totalAmount.toString()]);
+      
+      // Generate the table
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 40,
+        styles: { fontSize: 10, cellPadding: 3 },
+        headStyles: { fillColor: [75, 85, 166] },
+        footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [250, 250, 255] },
+      });
+      
+      // Save the PDF
+      doc.save(`${reportType}-report-${format(new Date(), "yyyyMMdd_HHmmss")}.pdf`);
+      
+      toast.success("PDF report exported successfully");
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast.error("Failed to export PDF. Please try again.");
+    }
   };
 
   const columns: ColumnDef<ReportData>[] = [
