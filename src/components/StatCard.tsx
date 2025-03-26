@@ -43,44 +43,44 @@ const StatCard: React.FC<StatCardProps> = ({
   // Define color styles for different card types
   const colorStyles = {
     default: {
-      card: "border-l-4 border-primary bg-primary/5",
-      icon: "bg-primary/20 text-primary"
+      card: "bg-primary text-primary-foreground",
+      icon: "bg-white/20 text-white"
     },
     green: {
-      card: "border-l-4 border-finance-deposit bg-finance-deposit/5",
-      icon: "bg-finance-deposit/20 text-finance-deposit"
+      card: "bg-gradient-to-br from-green-400 to-green-600 text-white",
+      icon: "bg-white/20 text-white"
     },
     red: {
-      card: "border-l-4 border-finance-withdrawal bg-finance-withdrawal/5",
-      icon: "bg-finance-withdrawal/20 text-finance-withdrawal"
+      card: "bg-gradient-to-br from-rose-400 to-rose-600 text-white",
+      icon: "bg-white/20 text-white"
     },
     purple: {
-      card: "border-l-4 border-finance-balance bg-finance-balance/5",
-      icon: "bg-finance-balance/20 text-finance-balance"
+      card: "bg-gradient-to-br from-purple-400 to-purple-600 text-white",
+      icon: "bg-white/20 text-white"
     },
     amber: {
-      card: "border-l-4 border-finance-petty bg-finance-petty/5",
-      icon: "bg-finance-petty/20 text-finance-petty"
+      card: "bg-gradient-to-br from-amber-400 to-amber-600 text-white",
+      icon: "bg-white/20 text-white"
     },
     blue: {
-      card: "border-l-4 border-blue-500 bg-blue-500/5",
-      icon: "bg-blue-500/20 text-blue-500"
+      card: "bg-gradient-to-br from-blue-400 to-blue-600 text-white",
+      icon: "bg-white/20 text-white"
     },
     pink: {
-      card: "border-l-4 border-pink-500 bg-pink-500/5",
-      icon: "bg-pink-500/20 text-pink-500"
+      card: "bg-gradient-to-br from-pink-400 to-pink-600 text-white",
+      icon: "bg-white/20 text-white"
     },
     teal: {
-      card: "border-l-4 border-teal-500 bg-teal-500/5",
-      icon: "bg-teal-500/20 text-teal-500"
+      card: "bg-gradient-to-br from-teal-400 to-teal-600 text-white",
+      icon: "bg-white/20 text-white"
     },
     orange: {
-      card: "border-l-4 border-orange-500 bg-orange-500/5",
-      icon: "bg-orange-500/20 text-orange-500"
+      card: "bg-gradient-to-br from-orange-400 to-orange-600 text-white",
+      icon: "bg-white/20 text-white"
     },
     indigo: {
-      card: "border-l-4 border-indigo-500 bg-indigo-500/5",
-      icon: "bg-indigo-500/20 text-indigo-500"
+      card: "bg-gradient-to-br from-indigo-400 to-indigo-600 text-white",
+      icon: "bg-white/20 text-white"
     }
   };
 
@@ -88,40 +88,39 @@ const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <Card className={cn(
-      "overflow-hidden transition-all-200 hover:card-shadow-hover", 
+      "overflow-hidden rounded-xl transition-all duration-200 hover:shadow-lg", 
       selectedStyle.card,
       className
     )}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className={`text-sm font-medium ${colorStyle !== 'default' ? 'text-foreground' : 'text-muted-foreground'}`}>
+          <CardTitle className="text-sm font-medium text-white/90">
             {title}
           </CardTitle>
           {Icon && (
-            <div className={cn("p-2 rounded-md", selectedStyle.icon, iconClassName)}>
+            <div className={cn("p-2 rounded-full", selectedStyle.icon, iconClassName)}>
               <Icon className="h-5 w-5" />
             </div>
           )}
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">
+        <div className="text-3xl font-bold">
           {formatValue(value)}
         </div>
         {description && (
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
+          <p className="text-xs text-white/70 mt-1">{description}</p>
         )}
         {trend && (
-          <div className="flex items-center mt-2">
+          <div className="flex items-center mt-4">
             <span
               className={cn(
-                "text-xs font-medium flex items-center",
-                trend.isPositive ? "text-green-500" : "text-red-500"
+                "text-sm font-medium flex items-center",
+                trend.isPositive ? "text-white" : "text-white"
               )}
             >
-              {trend.isPositive ? "+" : "-"}{trend.value}%
+              {trend.isPositive ? "Increased by " : "Decreased by "}{trend.value}%
             </span>
-            <span className="text-xs text-muted-foreground ml-1">from last month</span>
           </div>
         )}
       </CardContent>

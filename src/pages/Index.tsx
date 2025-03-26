@@ -9,7 +9,7 @@ const Index: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-slate-50">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header title="Dashboard" />

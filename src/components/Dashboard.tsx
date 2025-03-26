@@ -3,7 +3,8 @@ import React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useFinance } from "@/context/FinanceContext";
 import StatCard from "@/components/StatCard";
-import { ArrowDownRight, ArrowUpRight, BanknoteIcon, Building, PiggyBank, Wallet } from "lucide-react";
+import FinanceCharts from "@/components/FinanceCharts";
+import { ArrowDownRight, ArrowUpRight, BanknoteIcon, Building, PiggyBank, Wallet, Users } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -46,18 +47,21 @@ const Dashboard: React.FC = () => {
           value={summary.totalDeposit}
           icon={BanknoteIcon}
           colorStyle="blue"
+          trend={{ value: 60, isPositive: true }}
         />
         <StatCard
           title="Total Withdrawals"
           value={summary.totalWithdrawal}
           icon={Wallet}
           colorStyle="pink"
+          trend={{ value: 10, isPositive: false }}
         />
         <StatCard
           title="Bank Balance"
           value={summary.bankBalance}
           icon={Building}
           colorStyle="teal"
+          trend={{ value: 5, isPositive: true }}
         />
       </div>
       
@@ -67,16 +71,21 @@ const Dashboard: React.FC = () => {
           value={summary.totalPettyCash}
           icon={PiggyBank}
           colorStyle="orange"
+          trend={{ value: 15, isPositive: true }}
         />
         <StatCard
           title="Cash In Hand"
           value={summary.cashInHand}
-          icon={Wallet}
-          colorStyle="indigo"
+          icon={Users}
+          colorStyle="purple"
+          trend={{ value: 8, isPositive: true }}
         />
       </div>
 
-      <Card>
+      {/* Charts */}
+      <FinanceCharts />
+
+      <Card className="overflow-hidden rounded-xl bg-white shadow-sm">
         <CardHeader>
           <CardTitle>Recent Transactions</CardTitle>
           <CardDescription>Your most recent financial activities</CardDescription>
@@ -90,7 +99,7 @@ const Dashboard: React.FC = () => {
                 recentTransactions.map((transaction) => (
                   <div
                     key={transaction.id}
-                    className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-all-200"
+                    className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-all duration-200"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="p-2 rounded-full bg-muted">
