@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -30,6 +30,11 @@ interface SidebarItemProps {
   adminOnly?: boolean;
   isAdmin: boolean;
   onClick?: () => void;
+}
+
+interface AppSettings {
+  appName: string;
+  logo: string | null;
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({
@@ -69,6 +74,31 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { logout, isAdmin } = useAuth();
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    const stored = localStorage.getItem("appSettings");
+    return stored 
+      ? JSON.parse(stored) 
+      : { appName: "Financial Dashboard", logo: null };
+  });
+
+  // Listen for settings changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem("appSettings");
+      if (stored) {
+        setSettings(JSON.parse(stored));
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also check for settings on component mount
+    handleStorageChange();
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   return (
     <div
@@ -79,9 +109,18 @@ const Sidebar: React.FC = () => {
     >
       <div className="flex items-center justify-between h-14 px-4">
         {!collapsed && (
-          <h2 className="text-lg font-semibold text-sidebar-foreground">
-            Finance App
-          </h2>
+          <div className="flex items-center">
+            {settings.logo && (
+              <img 
+                src={settings.logo} 
+                alt="Logo" 
+                className="h-6 w-6 mr-2 object-contain" 
+              />
+            )}
+            <h2 className="text-lg font-semibold text-sidebar-foreground truncate">
+              {settings.appName}
+            </h2>
+          </div>
         )}
         <Button
           variant="ghost"

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, LayoutDashboard, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,13 +17,51 @@ interface HeaderProps {
   title?: string;
 }
 
+interface AppSettings {
+  appName: string;
+  logo: string | null;
+}
+
 const Header: React.FC<HeaderProps> = ({ title = "Dashboard" }) => {
   const { user, logout, isAdmin } = useAuth();
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    const stored = localStorage.getItem("appSettings");
+    return stored 
+      ? JSON.parse(stored) 
+      : { appName: "Financial Dashboard", logo: null };
+  });
+
+  // Listen for settings changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem("appSettings");
+      if (stored) {
+        setSettings(JSON.parse(stored));
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also check for settings on component mount
+    handleStorageChange();
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   return (
     <header className="h-14 border-b border-border flex items-center justify-between px-6 bg-background">
       <div className="flex items-center">
-        <LayoutDashboard className="h-5 w-5 text-primary mr-2" />
+        {settings.logo ? (
+          <img 
+            src={settings.logo} 
+            alt="Logo" 
+            className="h-7 w-7 mr-2 object-contain" 
+          />
+        ) : (
+          <LayoutDashboard className="h-5 w-5 text-primary mr-2" />
+        )}
         <h1 className="text-lg font-semibold">{title}</h1>
       </div>
 

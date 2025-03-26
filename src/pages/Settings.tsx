@@ -46,7 +46,13 @@ const Settings: React.FC = () => {
     };
     
     setSettings(newSettings);
+    
+    // Save to localStorage
     localStorage.setItem("appSettings", JSON.stringify(newSettings));
+    
+    // Dispatch a storage event to notify other components about the change
+    window.dispatchEvent(new Event('storage'));
+    
     toast.success("Settings saved successfully");
   };
 
