@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface HeaderProps {
   title?: string;
@@ -66,6 +67,8 @@ const Header: React.FC<HeaderProps> = ({ title = "Dashboard" }) => {
       </div>
 
       <div className="flex items-center space-x-3">
+        <ThemeToggle />
+        
         <Button variant="ghost" size="icon" className="text-muted-foreground">
           <Bell size={18} />
         </Button>

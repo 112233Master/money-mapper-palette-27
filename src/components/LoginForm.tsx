@@ -83,6 +83,11 @@ const LoginForm: React.FC<LoginFormProps> = ({
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </Button>
+          <div className="text-center text-sm text-muted-foreground mt-4">
+            <p>Demo credentials:</p>
+            <p>Admin: admin / admin123</p>
+            <p>User: user / user123</p>
+          </div>
         </form>
       </CardContent>
     </Card>
