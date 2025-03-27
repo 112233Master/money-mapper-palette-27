@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
-import { LockKeyhole, User } from "lucide-react";
+import { LockKeyhole, User, Eye, EyeOff } from "lucide-react";
 
 interface LoginFormProps {
   logoUrl?: string;
@@ -18,6 +18,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
 }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { login, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,13 +72,21 @@ const LoginForm: React.FC<LoginFormProps> = ({
               </div>
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10"
+                className="pl-10 pr-10"
                 required
               />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
