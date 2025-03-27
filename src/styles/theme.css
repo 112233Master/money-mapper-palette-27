@@ -13,43 +13,43 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
     
-    --primary: 221.2 83.2% 53.3%;
+    --primary: 262 83% 58%; /* Purple theme */
     --primary-foreground: 210 40% 98%;
     
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 262 60% 94%; /* Light purple */
+    --secondary-foreground: 262 50% 30%;
     
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 262 40% 96%; /* Purple-tinted */
+    --muted-foreground: 262 30% 46%;
     
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 262 40% 96%; /* Purple-tinted */
+    --accent-foreground: 262 50% 30%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 262 30% 91.4%; /* Purple-tinted */
+    --input: 262 30% 91.4%; /* Purple-tinted */
+    --ring: 262 83% 58%; /* Match primary */
 
-    /* Sidebar light theme */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: 221.2 83.2% 53.3%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 221.2 83.2% 53.3%;
+    --radius: 0.6rem;
 
-    /* Financial colors - light theme */
+    /* Financial colors */
     --finance-deposit: 142.1 76.2% 36.3%;
     --finance-withdrawal: 0 84.2% 60.2%;
-    --finance-balance: 221.2 83.2% 53.3%;
+    --finance-balance: 262 83% 58%; /* Purple */
     --finance-petty: 24.6 95% 53.1%;
     --finance-cash: 262.1 83.3% 57.8%;
-    
-    --radius: 0.5rem;
+
+    /* Sidebar variables */
+    --sidebar-background: 262 83% 58%; /* Purple */
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 210 40% 98%;
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
+    --sidebar-accent: 262 75% 65%; /* Lighter purple */
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 262 76.3% 48%; /* Purple */
+    --sidebar-ring: 262 91.2% 59.8%; /* Purple */
   }
  
   .dark {
@@ -57,52 +57,52 @@
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     
-    --card: 222.2 84% 4.9%;
+    --card: 224 71% 4%;
     --card-foreground: 210 40% 98%;
     
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
     
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 262 91.2% 59.8%; /* Purple */
     --primary-foreground: 222.2 47.4% 11.2%;
     
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 262 32.6% 17.5%; /* Dark purple */
     --secondary-foreground: 210 40% 98%;
     
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 262 32.6% 17.5%; /* Dark purple */
+    --muted-foreground: 262 20.2% 65.1%; /* Light purple */
     
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 262 32.6% 17.5%; /* Dark purple */
     --accent-foreground: 210 40% 98%;
     
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --border: 262 32.6% 17.5%; /* Dark purple */
+    --input: 262 32.6% 17.5%; /* Dark purple */
+    --ring: 262 76.3% 48%; /* Purple */
 
-    /* Sidebar dark theme */
-    --sidebar-background: 222.2 47.4% 11.2%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 210 40% 98%;
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-accent: 217.2 32.6% 17.5%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 224.3 76.3% 48%;
-
-    /* Financial colors - dark theme */
+    /* Financial colors - dark mode */
     --finance-deposit: 142.1 70.6% 45.3%;
     --finance-withdrawal: 0 72.2% 50.6%;
-    --finance-balance: 221.2 83.2% 53.3%;
+    --finance-balance: 262 83% 53.3%; /* Purple */
     --finance-petty: 24.6 95% 53.1%;
     --finance-cash: 262.1 83.3% 57.8%;
+    
+    /* Sidebar variables */
+    --sidebar-background: 222.2 84% 4.9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 262 91.2% 59.8%; /* Purple */
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
+    --sidebar-accent: 262 32.6% 17.5%; /* Dark purple */
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 262 32.6% 17.5%; /* Dark purple */
+    --sidebar-ring: 262 76.3% 48%; /* Purple */
   }
 }
 
 body {
-  @apply bg-background text-foreground;
+  @apply bg-background text-foreground transition-colors duration-300;
 }
 
 .card-shadow {
@@ -111,4 +111,18 @@ body {
 
 .dark .card-shadow {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode specific card styling */
+.dark .bg-white {
+  @apply bg-card;
+}
+
+.dark .bg-slate-50 {
+  @apply bg-background;
+}
+
+/* Custom transitions for theme toggle */
+.theme-transition {
+  @apply transition-all duration-300 ease-in-out;
 }
