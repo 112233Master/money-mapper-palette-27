@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -85,13 +85,6 @@ const LoginForm: React.FC<LoginFormProps> = ({
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-center text-sm text-muted-foreground">
-        <div className="text-center">
-          <p>Demo credentials:</p>
-          <p>Admin: admin / admin123</p>
-          <p>User: user / user123</p>
-        </div>
-      </CardFooter>
     </Card>
   );
 };
