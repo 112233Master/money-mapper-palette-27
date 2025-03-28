@@ -1,12 +1,6 @@
 
 // Database configuration
 export const dbConfig = {
-  // MongoDB configuration
-  mongodb: {
-    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017',
-    dbName: process.env.MONGODB_DBNAME || 'finance_tracker',
-  },
-  
   // Browser-compatible mock database configuration
   mock: {
     host: process.env.DB_HOST || 'localhost',
@@ -18,10 +12,6 @@ export const dbConfig = {
 
 // For troubleshooting
 console.log('Using database config:', {
-  mongodb: {
-    uri: dbConfig.mongodb.uri,
-    dbName: dbConfig.mongodb.dbName
-  },
   mock: {
     host: dbConfig.mock.host,
     database: dbConfig.mock.database

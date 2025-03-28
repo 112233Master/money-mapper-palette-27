@@ -16,6 +16,13 @@ const DatabaseInit: React.FC<DatabaseInitProps> = ({ children }) => {
   useEffect(() => {
     const connectToDb = async () => {
       try {
+        // If MongoDB is selected in browser, show specific message
+        if (storageType === 'mongodb') {
+          setStatus('error');
+          setErrorMessage('MongoDB cannot be used directly in the browser. Please use a server-side implementation or select another storage option.');
+          return;
+        }
+        
         const provider = getProvider();
         
         // Test the connection
@@ -28,13 +35,8 @@ const DatabaseInit: React.FC<DatabaseInitProps> = ({ children }) => {
           if (isInitialized) {
             setStatus('connected');
           } else {
-            // If current DB fails, try falling back to indexeddb or mock
-            if (storageType === 'mongodb') {
-              console.log('Falling back to IndexedDB');
-              setStorageType('indexeddb');
-              setStorageTypeState('indexeddb');
-              await tryFallbackStorage();
-            } else if (storageType === 'indexeddb') {
+            // If current DB fails, try falling back to mock
+            if (storageType === 'indexeddb') {
               console.log('Falling back to mock database');
               setStorageType('mock');
               setStorageTypeState('mock');
@@ -46,12 +48,7 @@ const DatabaseInit: React.FC<DatabaseInitProps> = ({ children }) => {
           }
         } else {
           // If current DB fails, try falling back
-          if (storageType === 'mongodb') {
-            console.log('Falling back to IndexedDB');
-            setStorageType('indexeddb');
-            setStorageTypeState('indexeddb');
-            await tryFallbackStorage();
-          } else if (storageType === 'indexeddb') {
+          if (storageType === 'indexeddb') {
             console.log('Falling back to mock database');
             setStorageType('mock');
             setStorageTypeState('mock');
@@ -124,7 +121,7 @@ const DatabaseInit: React.FC<DatabaseInitProps> = ({ children }) => {
             <p className="mt-2">{errorMessage}</p>
             <p className="mt-4">
               {storageType === 'mongodb' 
-                ? 'There was an error connecting to MongoDB. Make sure MongoDB is running and accessible, or try using IndexedDB or mock database.'
+                ? 'MongoDB requires a server-side implementation. For direct browser usage, please select IndexedDB or mock database.'
                 : storageType === 'indexeddb'
                   ? 'There was an error connecting to IndexedDB. Try using the mock database instead.'
                   : 'This application is using a browser-compatible mock database for demonstration.'}
@@ -136,14 +133,6 @@ const DatabaseInit: React.FC<DatabaseInitProps> = ({ children }) => {
               >
                 Retry Connection
               </button>
-              {storageType !== 'mongodb' && (
-                <button 
-                  className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90"
-                  onClick={() => switchStorageType('mongodb')}
-                >
-                  Use MongoDB
-                </button>
-              )}
               {storageType !== 'indexeddb' && (
                 <button 
                   className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90"
@@ -175,7 +164,6 @@ const DatabaseInit: React.FC<DatabaseInitProps> = ({ children }) => {
           value={storageType}
           onChange={(e) => switchStorageType(e.target.value as StorageType)}
         >
-          <option value="mongodb">MongoDB</option>
           <option value="indexeddb">IndexedDB</option>
           <option value="mock">Mock Database</option>
         </select>
