@@ -2,13 +2,16 @@
 import { Category, Transaction, TransactionType } from '../context/FinanceContext';
 import * as mockDb from './db';
 import * as indexedDb from './indexedDb';
+import * as mongoDb from './mongoDb';
 import * as mockCategoryRepo from '../repositories/categoryRepository';
 import * as mockTransactionRepo from '../repositories/transactionRepository';
 import * as indexedDbCategoryRepo from '../repositories/indexedDbCategoryRepository';
 import * as indexedDbTransactionRepo from '../repositories/indexedDbTransactionRepository';
+import * as mongoDbCategoryRepo from '../repositories/mongoDbCategoryRepository';
+import * as mongoDbTransactionRepo from '../repositories/mongoDbTransactionRepository';
 
 // Available storage types
-export type StorageType = 'mock' | 'indexeddb';
+export type StorageType = 'mock' | 'indexeddb' | 'mongodb';
 
 // Default to IndexedDB, fallback to mock
 let currentStorage: StorageType = 'indexeddb';
@@ -21,23 +24,39 @@ export interface StorageProvider {
   
   // Category operations
   getAllCategories: () => Promise<Category[]>;
-  getCategoryById: (id: number) => Promise<Category | null>;
+  getCategoryById: (id: number | string) => Promise<Category | null>;
   createCategory: (name: string) => Promise<Category>;
-  updateCategory: (id: number, name: string) => Promise<boolean>;
-  deleteCategory: (id: number) => Promise<boolean>;
+  updateCategory: (id: number | string, name: string) => Promise<boolean>;
+  deleteCategory: (id: number | string) => Promise<boolean>;
   
   // Transaction operations
   getAllTransactions: () => Promise<Transaction[]>;
   getTransactionsByType: (type: TransactionType) => Promise<Transaction[]>;
   getTransactionsByDateRange: (startDate: string, endDate: string) => Promise<Transaction[]>;
   createTransaction: (transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Transaction>;
-  updateTransaction: (id: number, updates: Partial<Transaction>) => Promise<boolean>;
-  deleteTransaction: (id: number) => Promise<boolean>;
+  updateTransaction: (id: number | string, updates: Partial<Transaction>) => Promise<boolean>;
+  deleteTransaction: (id: number | string) => Promise<boolean>;
 }
 
 // Get the current implementation based on storage type
 export const getProvider = (): StorageProvider => {
-  if (currentStorage === 'indexeddb') {
+  if (currentStorage === 'mongodb') {
+    return {
+      testConnection: mongoDb.testConnection,
+      initializeDatabase: mongoDb.initializeDatabase,
+      getAllCategories: mongoDbCategoryRepo.getAllCategories,
+      getCategoryById: mongoDbCategoryRepo.getCategoryById,
+      createCategory: mongoDbCategoryRepo.createCategory,
+      updateCategory: mongoDbCategoryRepo.updateCategory,
+      deleteCategory: mongoDbCategoryRepo.deleteCategory,
+      getAllTransactions: mongoDbTransactionRepo.getAllTransactions,
+      getTransactionsByType: mongoDbTransactionRepo.getTransactionsByType,
+      getTransactionsByDateRange: mongoDbTransactionRepo.getTransactionsByDateRange,
+      createTransaction: mongoDbTransactionRepo.createTransaction,
+      updateTransaction: mongoDbTransactionRepo.updateTransaction,
+      deleteTransaction: mongoDbTransactionRepo.deleteTransaction,
+    };
+  } else if (currentStorage === 'indexeddb') {
     return {
       testConnection: indexedDb.testConnection,
       initializeDatabase: indexedDb.initializeDatabase,
