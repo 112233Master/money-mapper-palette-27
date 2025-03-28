@@ -35,6 +35,7 @@ const DatabaseInit: React.FC<DatabaseInitProps> = ({ children }) => {
       } catch (error) {
         setStatus('error');
         setErrorMessage(error instanceof Error ? error.message : 'Unknown database error');
+        console.error('Database connection error:', error);
       }
     };
 
@@ -45,7 +46,7 @@ const DatabaseInit: React.FC<DatabaseInitProps> = ({ children }) => {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-center gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-lg">Connecting to database...</p>
+        <p className="text-lg">Initializing database...</p>
       </div>
     );
   }
@@ -58,14 +59,9 @@ const DatabaseInit: React.FC<DatabaseInitProps> = ({ children }) => {
           <AlertDescription>
             <p className="mt-2">{errorMessage}</p>
             <p className="mt-4">
-              Please check your database configuration and ensure MySQL server is running.
-              The application is configured to connect to:
+              Note: This application is using a browser-compatible mock database for demonstration.
+              In a production environment, you would need a backend server to handle database operations.
             </p>
-            <ul className="mt-2 list-disc pl-5">
-              <li>Host: {process.env.DB_HOST || 'localhost'}</li>
-              <li>Database: {process.env.DB_NAME || 'finance_tracker'}</li>
-              <li>User: {process.env.DB_USER || 'root'}</li>
-            </ul>
             <button 
               className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
               onClick={() => window.location.reload()}

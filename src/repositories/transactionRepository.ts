@@ -1,6 +1,10 @@
-
 import { query } from '../services/db';
 import { Transaction, TransactionType } from '../context/FinanceContext';
+
+interface QueryResult {
+  affectedRows?: number;
+  insertId?: number;
+}
 
 export const getAllTransactions = async (): Promise<Transaction[]> => {
   return await query<Transaction[]>(`
@@ -43,7 +47,7 @@ export const getTransactionsByDateRange = async (startDate: string, endDate: str
 };
 
 export const createTransaction = async (transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>): Promise<Transaction> => {
-  const result = await query<{insertId: number}>(
+  const result = await query<QueryResult>(
     `INSERT INTO transactions 
       (type, amount, date, category_id, description, ref_number, cheque_number, voucher_number) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -126,17 +130,17 @@ export const updateTransaction = async (id: number, updates: Partial<Transaction
     return false; // Nothing to update
   }
 
-  const result = await query(
+  const result = await query<QueryResult>(
     `UPDATE transactions SET ${fields.join(', ')} WHERE id = ?`,
     values
   );
 
-  return result.affectedRows > 0;
+  return (result.affectedRows || 0) > 0;
 };
 
 export const deleteTransaction = async (id: number): Promise<boolean> => {
-  const result = await query('DELETE FROM transactions WHERE id = ?', [id]);
-  return result.affectedRows > 0;
+  const result = await query<QueryResult>('DELETE FROM transactions WHERE id = ?', [id]);
+  return (result.affectedRows || 0) > 0;
 };
 
 export default {
