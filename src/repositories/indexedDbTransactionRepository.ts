@@ -5,7 +5,11 @@ import * as indexedDb from '../services/indexedDb';
 const STORE_NAME = 'transactions';
 
 export const getAllTransactions = async (): Promise<Transaction[]> => {
-  return await indexedDb.getAllRecords<Transaction>(STORE_NAME);
+  const transactions = await indexedDb.getAllRecords<Transaction>(STORE_NAME);
+  // Sort by date in descending order
+  return transactions.sort((a, b) => 
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 };
 
 export const getTransactionsByType = async (type: TransactionType): Promise<Transaction[]> => {
@@ -13,23 +17,23 @@ export const getTransactionsByType = async (type: TransactionType): Promise<Tran
 };
 
 export const getTransactionsByDateRange = async (startDate: string, endDate: string): Promise<Transaction[]> => {
-  return await indexedDb.getRecordsByDateRange<Transaction>(STORE_NAME, startDate, endDate);
+  return await indexedDb.getRecordsByRange<Transaction>(STORE_NAME, 'date', startDate, endDate);
 };
 
 export const createTransaction = async (transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>): Promise<Transaction> => {
-  const now = new Date().toISOString();
-  const newTransaction = {
-    ...transaction,
-    createdAt: now,
-    updatedAt: now
-  };
+  const id = await indexedDb.addRecord<Transaction>(STORE_NAME, transaction);
   
-  const id = await indexedDb.addRecord<Transaction>(STORE_NAME, newTransaction);
-  return { ...newTransaction, id };
+  // Return the complete transaction with id
+  return {
+    id,
+    ...transaction,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
 };
 
 export const updateTransaction = async (id: number, updates: Partial<Transaction>): Promise<boolean> => {
-  return await indexedDb.updateRecord(STORE_NAME, id, updates);
+  return await indexedDb.updateRecord<Transaction>(STORE_NAME, id, updates);
 };
 
 export const deleteTransaction = async (id: number): Promise<boolean> => {
