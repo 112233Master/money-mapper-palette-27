@@ -17,7 +17,6 @@ import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { FinanceProvider } from "./context/FinanceContext";
-import DatabaseInit from "./components/DatabaseInit";
 
 const queryClient = new QueryClient();
 
@@ -78,11 +77,9 @@ const App = () => {
           <Sonner position="top-right" />
           <BrowserRouter>
             <AuthProvider>
-              <DatabaseInit>
-                <FinanceProvider>
-                  <AppRoutes />
-                </FinanceProvider>
-              </DatabaseInit>
+              <FinanceProvider>
+                <AppRoutes />
+              </FinanceProvider>
             </AuthProvider>
           </BrowserRouter>
         </ThemeProvider>
