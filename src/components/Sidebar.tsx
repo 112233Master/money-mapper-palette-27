@@ -4,7 +4,6 @@ import { useLocation, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ThemeToggle from "@/components/ThemeToggle";
-import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Home,
   LogOut,
@@ -19,10 +18,29 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
-export function Sidebar() {
+// Modified useIsMobile hook inline - will be used until we update the imports
+const useIsMobileSidebar = () => {
+  const [isMobile, setIsMobile] = React.useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+    
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
+
+  return { isMobile, isSidebarOpen, setIsSidebarOpen };
+};
+
+const Sidebar = () => {
   const location = useLocation();
   const { logout, isAdmin } = useAuth();
-  const { isMobile, setIsSidebarOpen } = useIsMobile();
+  const { isMobile, setIsSidebarOpen } = useIsMobileSidebar();
 
   // Define navigation items
   const navItems = [
@@ -88,4 +106,8 @@ export function Sidebar() {
       </div>
     </div>
   );
-}
+};
+
+// Export both as default and named export to support both import styles
+export default Sidebar;
+export { Sidebar };

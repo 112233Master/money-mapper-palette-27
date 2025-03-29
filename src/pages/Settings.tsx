@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import Sidebar from "@/components/Sidebar";
+import { Sidebar } from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

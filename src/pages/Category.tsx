@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import Sidebar from "@/components/Sidebar";
+import { Sidebar } from "@/components/Sidebar";
 import Header from "@/components/Header";
 import CategoryForm from "@/components/CategoryForm";
 import { Category, useFinance } from "@/context/FinanceContext";

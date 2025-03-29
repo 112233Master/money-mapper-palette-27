@@ -20,15 +20,20 @@ export const getTransactionsByDateRange = async (startDate: string, endDate: str
   return await indexedDb.getRecordsByRange<Transaction>(STORE_NAME, 'date', startDate, endDate);
 };
 
-export const createTransaction = async (transaction: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>): Promise<Transaction> => {
-  const id = await indexedDb.addRecord<Transaction>(STORE_NAME, transaction);
+export const createTransaction = async (transaction: Omit<Transaction, 'id'>): Promise<Transaction> => {
+  const now = new Date().toISOString();
+  const transactionWithTimestamps = {
+    ...transaction,
+    createdAt: now,
+    updatedAt: now
+  };
+  
+  const id = await indexedDb.addRecord<Transaction>(STORE_NAME, transactionWithTimestamps);
   
   // Return the complete transaction with id
   return {
     id,
-    ...transaction,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    ...transactionWithTimestamps
   };
 };
 
