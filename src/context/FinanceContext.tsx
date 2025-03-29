@@ -1,6 +1,9 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
+import * as mongoDbService from '../services/mongoDb';
+import * as categoryRepository from '../repositories/mongoDbCategoryRepository';
+import * as transactionRepository from '../repositories/mongoDbTransactionRepository';
 
 // Transaction types
 export type TransactionType = "deposit" | "withdrawal" | "petty-cash";
@@ -37,13 +40,13 @@ interface FinanceContextType {
   summary: FinanceSummary;
   recentTransactions: Transaction[];
   // CRUD operations for transactions
-  addTransaction: (transaction: Omit<Transaction, "id" | "createdAt" | "updatedAt">) => void;
-  updateTransaction: (id: number, updates: Partial<Transaction>) => void;
-  deleteTransaction: (id: number) => void;
+  addTransaction: (transaction: Omit<Transaction, "id" | "createdAt" | "updatedAt">) => Promise<void>;
+  updateTransaction: (id: number, updates: Partial<Transaction>) => Promise<void>;
+  deleteTransaction: (id: number) => Promise<void>;
   // Category operations
-  addCategory: (name: string) => void;
-  updateCategory: (id: number, name: string) => void;
-  deleteCategory: (id: number) => void;
+  addCategory: (name: string) => Promise<void>;
+  updateCategory: (id: number, name: string) => Promise<void>;
+  deleteCategory: (id: number) => Promise<void>;
   // Filter transactions
   getTransactionsByType: (type: TransactionType) => Transaction[];
   getTransactionsByDateRange: (startDate: string, endDate: string) => Transaction[];
@@ -51,72 +54,10 @@ interface FinanceContextType {
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
-// Helper to generate a random ID
-const generateId = () => Math.floor(Math.random() * 10000);
-
-// Mock data for demo purposes
-const initialCategories: Category[] = [
-  { id: 1, name: "Salary" },
-  { id: 2, name: "Rent" },
-  { id: 3, name: "Utilities" },
-  { id: 4, name: "Office Supplies" },
-  { id: 5, name: "Travel" },
-];
-
-const today = new Date();
-const yesterday = new Date(today);
-yesterday.setDate(yesterday.getDate() - 1);
-
-const initialTransactions: Transaction[] = [
-  {
-    id: 1,
-    type: "deposit",
-    amount: 5000,
-    date: today.toISOString().split('T')[0],
-    categoryId: 1,
-    description: "Monthly salary",
-    refNumber: "DEP001",
-    createdAt: today.toISOString(),
-    updatedAt: today.toISOString(),
-  },
-  {
-    id: 2,
-    type: "withdrawal",
-    amount: 1500,
-    date: today.toISOString().split('T')[0],
-    categoryId: 2,
-    description: "Office rent payment",
-    chequeNumber: "CHQ101",
-    createdAt: today.toISOString(),
-    updatedAt: today.toISOString(),
-  },
-  {
-    id: 3,
-    type: "petty-cash",
-    amount: 200,
-    date: yesterday.toISOString().split('T')[0],
-    categoryId: 4,
-    description: "Office stationery",
-    voucherNumber: "PET001",
-    createdAt: yesterday.toISOString(),
-    updatedAt: yesterday.toISOString(),
-  },
-];
-
 export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Try to load data from localStorage
-  const loadInitialData = <T,>(key: string, defaultData: T): T => {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : defaultData;
-  };
-
-  const [transactions, setTransactions] = useState<Transaction[]>(
-    loadInitialData("transactions", initialTransactions)
-  );
-  
-  const [categories, setCategories] = useState<Category[]>(
-    loadInitialData("categories", initialCategories)
-  );
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [dbInitialized, setDbInitialized] = useState(false);
 
   // Calculate financial summary
   const calculateSummary = (transactions: Transaction[]): FinanceSummary => {
@@ -141,85 +82,166 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   };
 
-  const [summary, setSummary] = useState<FinanceSummary>(calculateSummary(transactions));
+  const [summary, setSummary] = useState<FinanceSummary>({
+    totalDeposit: 0,
+    totalWithdrawal: 0,
+    bankBalance: 0,
+    totalPettyCash: 0,
+    cashInHand: 0
+  });
 
   // Get recent transactions
-  const getRecentTransactions = (count: number = 5) => {
-    return [...transactions]
+  const getRecentTransactions = (allTransactions: Transaction[], count: number = 5) => {
+    return [...allTransactions]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, count);
   };
 
-  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
-    getRecentTransactions()
-  );
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
 
-  // Update localStorage when data changes
+  // Initialize database and load data
   useEffect(() => {
-    localStorage.setItem("transactions", JSON.stringify(transactions));
-    localStorage.setItem("categories", JSON.stringify(categories));
+    const init = async () => {
+      try {
+        // Initialize MongoDB
+        const initialized = await mongoDbService.initializeDatabase();
+        if (initialized) {
+          setDbInitialized(true);
+          
+          // Load categories
+          const loadedCategories = await categoryRepository.getAllCategories();
+          setCategories(loadedCategories);
+          
+          // Load transactions
+          const loadedTransactions = await transactionRepository.getAllTransactions();
+          setTransactions(loadedTransactions);
+          
+          // Calculate summary and recent transactions
+          setSummary(calculateSummary(loadedTransactions));
+          setRecentTransactions(getRecentTransactions(loadedTransactions));
+        } else {
+          console.error("Failed to initialize MongoDB");
+          toast.error("Failed to connect to database");
+        }
+      } catch (error) {
+        console.error("Error initializing database:", error);
+        toast.error("Error initializing database");
+      }
+    };
+
+    init();
+
+    // Clean up on unmount
+    return () => {
+      mongoDbService.closeConnection();
+    };
+  }, []);
+
+  // Update summary and recent transactions when data changes
+  useEffect(() => {
     setSummary(calculateSummary(transactions));
-    setRecentTransactions(getRecentTransactions());
-  }, [transactions, categories]);
+    setRecentTransactions(getRecentTransactions(transactions));
+  }, [transactions]);
 
   // Transaction CRUD operations
-  const addTransaction = (transaction: Omit<Transaction, "id" | "createdAt" | "updatedAt">) => {
-    const now = new Date().toISOString();
-    const newTransaction: Transaction = {
-      ...transaction,
-      id: generateId(),
-      createdAt: now,
-      updatedAt: now,
-    };
-    
-    setTransactions(prev => [...prev, newTransaction]);
-    toast.success(`${capitalizeFirstLetter(transaction.type)} added successfully`);
+  const addTransaction = async (transaction: Omit<Transaction, "id" | "createdAt" | "updatedAt">) => {
+    try {
+      const newTransaction = await transactionRepository.createTransaction(transaction);
+      setTransactions(prev => [...prev, newTransaction]);
+      toast.success(`${capitalizeFirstLetter(transaction.type)} added successfully`);
+    } catch (error) {
+      console.error("Error adding transaction:", error);
+      toast.error("Failed to add transaction");
+    }
   };
 
-  const updateTransaction = (id: number, updates: Partial<Transaction>) => {
-    setTransactions(prev => 
-      prev.map(transaction => 
-        transaction.id === id 
-          ? { ...transaction, ...updates, updatedAt: new Date().toISOString() } 
-          : transaction
-      )
-    );
-    toast.success("Transaction updated successfully");
+  const updateTransaction = async (id: number, updates: Partial<Transaction>) => {
+    try {
+      const success = await transactionRepository.updateTransaction(id, updates);
+      if (success) {
+        setTransactions(prev => 
+          prev.map(transaction => 
+            transaction.id === id 
+              ? { ...transaction, ...updates, updatedAt: new Date().toISOString() } 
+              : transaction
+          )
+        );
+        toast.success("Transaction updated successfully");
+      } else {
+        toast.error("Failed to update transaction");
+      }
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      toast.error("Failed to update transaction");
+    }
   };
 
-  const deleteTransaction = (id: number) => {
-    setTransactions(prev => prev.filter(transaction => transaction.id !== id));
-    toast.success("Transaction deleted successfully");
+  const deleteTransaction = async (id: number) => {
+    try {
+      const success = await transactionRepository.deleteTransaction(id);
+      if (success) {
+        setTransactions(prev => prev.filter(transaction => transaction.id !== id));
+        toast.success("Transaction deleted successfully");
+      } else {
+        toast.error("Failed to delete transaction");
+      }
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      toast.error("Failed to delete transaction");
+    }
   };
 
   // Category operations
-  const addCategory = (name: string) => {
-    const newCategory: Category = {
-      id: generateId(),
-      name,
-    };
-    setCategories(prev => [...prev, newCategory]);
-    toast.success("Category added successfully");
+  const addCategory = async (name: string) => {
+    try {
+      const newCategory = await categoryRepository.createCategory(name);
+      setCategories(prev => [...prev, newCategory]);
+      toast.success("Category added successfully");
+    } catch (error) {
+      console.error("Error adding category:", error);
+      toast.error("Failed to add category");
+    }
   };
 
-  const updateCategory = (id: number, name: string) => {
-    setCategories(prev => 
-      prev.map(category => 
-        category.id === id ? { ...category, name } : category
-      )
-    );
-    toast.success("Category updated successfully");
+  const updateCategory = async (id: number, name: string) => {
+    try {
+      const success = await categoryRepository.updateCategory(id, name);
+      if (success) {
+        setCategories(prev => 
+          prev.map(category => 
+            category.id === id ? { ...category, name } : category
+          )
+        );
+        toast.success("Category updated successfully");
+      } else {
+        toast.error("Failed to update category");
+      }
+    } catch (error) {
+      console.error("Error updating category:", error);
+      toast.error("Failed to update category");
+    }
   };
 
-  const deleteCategory = (id: number) => {
+  const deleteCategory = async (id: number) => {
     // Check if category is in use
     const inUse = transactions.some(t => t.categoryId === id);
     if (inUse) {
       toast.error("Cannot delete category that is in use");
       return;
     }
-    setCategories(prev => prev.filter(category => category.id !== id));
-    toast.success("Category deleted successfully");
+    
+    try {
+      const success = await categoryRepository.deleteCategory(id);
+      if (success) {
+        setCategories(prev => prev.filter(category => category.id !== id));
+        toast.success("Category deleted successfully");
+      } else {
+        toast.error("Failed to delete category");
+      }
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      toast.error("Failed to delete category");
+    }
   };
 
   // Filter transactions

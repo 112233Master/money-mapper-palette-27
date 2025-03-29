@@ -1,5 +1,10 @@
 
+import { MongoClient, Db, Collection } from 'mongodb';
 import { Category, Transaction } from '../context/FinanceContext';
+
+// MongoDB connection string - will be provided by the environment
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+const DB_NAME = 'finance_app';
 
 // Collections
 export const COLLECTIONS = {
@@ -7,31 +12,53 @@ export const COLLECTIONS = {
   TRANSACTIONS: 'transactions'
 };
 
-// In browser environment, we can't directly connect to MongoDB
-// We're mocking the MongoDB interface for frontend compatibility
+// MongoDB client instance
+let client: MongoClient | null = null;
+let db: Db | null = null;
 
-// Test connection (always returns false in browser)
+// Test connection
 export const testConnection = async (): Promise<boolean> => {
-  console.log("MongoDB connection test - this is a browser environment, returning false");
-  // In browser environment, this will always fail
-  return false;
+  try {
+    const testClient = new MongoClient(MONGODB_URI);
+    await testClient.connect();
+    await testClient.close();
+    return true;
+  } catch (error) {
+    console.error('MongoDB connection test failed:', error);
+    return false;
+  }
 };
 
-// Initialize database (mocked for browser)
+// Initialize database
 export const initializeDatabase = async (): Promise<boolean> => {
-  console.log("MongoDB initialization - this is a browser environment, returning false");
-  return false;
+  try {
+    client = new MongoClient(MONGODB_URI);
+    await client.connect();
+    db = client.db(DB_NAME);
+    console.log('MongoDB connected successfully to', DB_NAME);
+    return true;
+  } catch (error) {
+    console.error('MongoDB initialization failed:', error);
+    return false;
+  }
 };
 
-// Get collection with proper typing (mocked)
-export const getCollection = <T>(collectionName: string): any => {
-  console.warn(`MongoDB getCollection(${collectionName}) called in browser environment`);
-  throw new Error('Cannot access MongoDB directly from browser');
+// Get collection with proper typing
+export const getCollection = <T>(collectionName: string): Collection<T> => {
+  if (!db) {
+    throw new Error('Database not initialized. Call initializeDatabase() first.');
+  }
+  return db.collection<T>(collectionName);
 };
 
-// Close connection (mocked)
+// Close connection
 export const closeConnection = async (): Promise<void> => {
-  console.log('MongoDB connection close - browser environment, no action needed');
+  if (client) {
+    await client.close();
+    client = null;
+    db = null;
+    console.log('MongoDB connection closed');
+  }
 };
 
 export default {
