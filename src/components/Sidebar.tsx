@@ -1,220 +1,91 @@
 
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import React from "react";
+import { useLocation, NavLink } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
+import { useMobile } from "@/hooks/use-mobile";
 import {
-  AlertCircle,
-  BarChart3,
-  ChevronLeft,
-  ChevronRight,
-  FileText,
   Home,
   LogOut,
-  PiggyBank,
-  Plus,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  Wallet,
+  Tag,
+  FileBarChart,
   Settings,
-  Tags,
-  TrendingDown,
-  TrendingUp,
   Users,
+  Database
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
-interface SidebarItemProps {
-  icon: React.ReactNode;
-  title: string;
-  path: string;
-  collapsed: boolean;
-  adminOnly?: boolean;
-  isAdmin: boolean;
-  onClick?: () => void;
-}
-
-interface AppSettings {
-  appName: string;
-  logo: string | null;
-}
-
-const SidebarItem: React.FC<SidebarItemProps> = ({
-  icon,
-  title,
-  path,
-  collapsed,
-  adminOnly = false,
-  isAdmin,
-  onClick,
-}) => {
+export function Sidebar() {
   const location = useLocation();
-  const isActive = location.pathname === path;
-
-  if (adminOnly && !isAdmin) return null;
-
-  return (
-    <Link
-      to={path}
-      onClick={onClick}
-      className={cn(
-        "flex items-center py-2.5 px-3 rounded-md transition-all-200 group",
-        isActive
-          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-          : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
-        collapsed ? "justify-center" : ""
-      )}
-    >
-      <div className="flex items-center justify-center w-6">
-        {icon}
-      </div>
-      {!collapsed && <span className="ml-3 text-sm">{title}</span>}
-    </Link>
-  );
-};
-
-const Sidebar: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const { logout, isAdmin } = useAuth();
-  const [settings, setSettings] = useState<AppSettings>(() => {
-    const stored = localStorage.getItem("appSettings");
-    return stored 
-      ? JSON.parse(stored) 
-      : { appName: "Financial Dashboard", logo: null };
-  });
+  const { isMobile, setIsSidebarOpen } = useMobile();
 
-  // Listen for settings changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const stored = localStorage.getItem("appSettings");
-      if (stored) {
-        setSettings(JSON.parse(stored));
-      }
-    };
+  // Define navigation items
+  const navItems = [
+    { path: "/", label: "Dashboard", icon: <Home className="h-5 w-5" /> },
+    { path: "/deposit", label: "Deposit", icon: <ArrowUpCircle className="h-5 w-5" /> },
+    { path: "/withdrawal", label: "Withdrawal", icon: <ArrowDownCircle className="h-5 w-5" /> },
+    { path: "/petty-cash", label: "Petty Cash", icon: <Wallet className="h-5 w-5" /> },
+    { path: "/category", label: "Categories", icon: <Tag className="h-5 w-5" /> },
+    { path: "/reports", label: "Reports", icon: <FileBarChart className="h-5 w-5" /> },
+    { path: "/settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
+    { path: "/mongodb-setup", label: "MongoDB Setup", icon: <Database className="h-5 w-5" /> },
+  ];
 
-    window.addEventListener("storage", handleStorageChange);
-    
-    // Also check for settings on component mount
-    handleStorageChange();
+  // Admin-only pages
+  if (isAdmin) {
+    navItems.push({ path: "/users", label: "Users", icon: <Users className="h-5 w-5" /> });
+  }
 
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
+  const handleClick = () => {
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  };
 
   return (
-    <div
-      className={cn(
-        "flex flex-col h-screen bg-sidebar border-r border-border transition-all duration-300 ease-in-out",
-        collapsed ? "w-16" : "w-64"
-      )}
-    >
-      <div className="flex items-center justify-between h-14 px-4">
-        {!collapsed && (
-          <div className="flex items-center">
-            {settings.logo && (
-              <img 
-                src={settings.logo} 
-                alt="Logo" 
-                className="h-6 w-6 mr-2 object-contain" 
-              />
-            )}
-            <h2 className="text-lg font-semibold text-sidebar-foreground truncate">
-              {settings.appName}
-            </h2>
-          </div>
-        )}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-        >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        </Button>
+    <div className="h-full flex flex-col border-r bg-card">
+      <div className="p-4">
+        <h2 className="text-xl font-bold">Money Mapper</h2>
       </div>
-
-      <div className="flex-1 overflow-y-auto px-3 py-4">
-        <nav className="flex flex-col space-y-1">
-          <SidebarItem
-            icon={<Home size={18} />}
-            title="Dashboard"
-            path="/"
-            collapsed={collapsed}
-            isAdmin={isAdmin}
-          />
-          <Separator className="my-2 bg-sidebar-border" />
-          <p className={cn("text-xs text-sidebar-foreground/70 mb-1 mt-1", collapsed ? "sr-only" : "px-3")}>
-            Transactions
-          </p>
-          <SidebarItem
-            icon={<TrendingUp size={18} />}
-            title="Add Deposit"
-            path="/deposit"
-            collapsed={collapsed}
-            isAdmin={isAdmin}
-          />
-          <SidebarItem
-            icon={<TrendingDown size={18} />}
-            title="Add Withdrawal"
-            path="/withdrawal"
-            collapsed={collapsed}
-            isAdmin={isAdmin}
-          />
-          <SidebarItem
-            icon={<PiggyBank size={18} />}
-            title="Add Petty Cash"
-            path="/petty-cash"
-            collapsed={collapsed}
-            isAdmin={isAdmin}
-          />
-          <SidebarItem
-            icon={<Tags size={18} />}
-            title="Categories"
-            path="/category"
-            collapsed={collapsed}
-            adminOnly={true}
-            isAdmin={isAdmin}
-          />
-          <SidebarItem
-            icon={<FileText size={18} />}
-            title="Reports"
-            path="/reports"
-            collapsed={collapsed}
-            isAdmin={isAdmin}
-          />
-          <Separator className="my-2 bg-sidebar-border" />
-          <SidebarItem
-            icon={<Users size={18} />}
-            title="User Management"
-            path="/users"
-            collapsed={collapsed}
-            adminOnly={true}
-            isAdmin={isAdmin}
-          />
-          <SidebarItem
-            icon={<Settings size={18} />}
-            title="Settings"
-            path="/settings"
-            collapsed={collapsed}
-            adminOnly={true}
-            isAdmin={isAdmin}
-          />
+      <ScrollArea className="flex-1">
+        <nav className="grid gap-1 px-2">
+          {navItems.map((item) => (
+            <NavLink 
+              key={item.path} 
+              to={item.path} 
+              onClick={handleClick}
+              className={({ isActive }) => 
+                `flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${
+                  isActive 
+                    ? "bg-accent text-accent-foreground" 
+                    : "hover:bg-accent hover:text-accent-foreground"
+                }`
+              }
+            >
+              {item.icon}
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
-      </div>
-
-      <div className="px-3 py-3">
-        <button
-          onClick={logout}
-          className={cn(
-            "flex items-center py-2.5 px-3 rounded-md w-full transition-all-200 text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
-            collapsed ? "justify-center" : ""
-          )}
-        >
-          <LogOut size={18} />
-          {!collapsed && <span className="ml-3 text-sm">Logout</span>}
-        </button>
+      </ScrollArea>
+      <div className="p-4 mt-auto border-t">
+        <div className="flex items-center justify-between">
+          <ThemeToggle />
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={logout} 
+            title="Logout"
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </div>
   );
-};
-
-export default Sidebar;
+}

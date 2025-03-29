@@ -2,9 +2,10 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 import { Category, Transaction } from '../context/FinanceContext';
 
-// MongoDB connection string - will be provided by the environment
+// MongoDB connection configuration
+// Replace this with your actual MongoDB connection string in your environment
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
-const DB_NAME = 'finance_app';
+const DB_NAME = process.env.MONGODB_DB_NAME || 'finance_app';
 
 // Collections
 export const COLLECTIONS = {
@@ -21,6 +22,7 @@ export const testConnection = async (): Promise<boolean> => {
   try {
     const testClient = new MongoClient(MONGODB_URI);
     await testClient.connect();
+    console.log('MongoDB connection test successful to:', MONGODB_URI);
     await testClient.close();
     return true;
   } catch (error) {
@@ -31,11 +33,16 @@ export const testConnection = async (): Promise<boolean> => {
 
 // Initialize database
 export const initializeDatabase = async (): Promise<boolean> => {
+  if (client && db) {
+    console.log('MongoDB already connected');
+    return true;
+  }
+  
   try {
     client = new MongoClient(MONGODB_URI);
     await client.connect();
     db = client.db(DB_NAME);
-    console.log('MongoDB connected successfully to', DB_NAME);
+    console.log('MongoDB connected successfully to database:', DB_NAME);
     return true;
   } catch (error) {
     console.error('MongoDB initialization failed:', error);
@@ -61,10 +68,20 @@ export const closeConnection = async (): Promise<void> => {
   }
 };
 
+// Check MongoDB setup
+export const checkMongoDBSetup = (): { isConfigured: boolean, connectionString: string } => {
+  const hasCustomURI = process.env.MONGODB_URI && process.env.MONGODB_URI !== 'mongodb://localhost:27017';
+  return {
+    isConfigured: hasCustomURI,
+    connectionString: MONGODB_URI
+  };
+};
+
 export default {
   testConnection,
   initializeDatabase,
   getCollection,
   closeConnection,
+  checkMongoDBSetup,
   COLLECTIONS
 };
