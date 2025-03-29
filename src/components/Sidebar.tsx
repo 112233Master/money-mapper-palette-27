@@ -3,9 +3,8 @@ import React from "react";
 import { useLocation, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { useAuth } from "@/context/AuthContext";
-import { useMobile } from "@/hooks/use-mobile";
+import ThemeToggle from "@/components/ThemeToggle";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Home,
   LogOut,
@@ -18,11 +17,12 @@ import {
   Users,
   Database
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export function Sidebar() {
   const location = useLocation();
   const { logout, isAdmin } = useAuth();
-  const { isMobile, setIsSidebarOpen } = useMobile();
+  const { isMobile, setIsSidebarOpen } = useIsMobile();
 
   // Define navigation items
   const navItems = [

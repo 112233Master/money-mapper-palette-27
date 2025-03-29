@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Header } from '@/components/Header';
+import Header from '@/components/Header';
 import MongoDBSetupGuide from '@/components/MongoDBSetupGuide';
 import { Sidebar } from '@/components/Sidebar';
 
