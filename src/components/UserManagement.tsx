@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,38 +65,67 @@ const UserManagement: React.FC = () => {
   const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
-  // Load users from MongoDB or fallback to localStorage
   useEffect(() => {
     const loadUsers = async () => {
       setIsLoading(true);
       try {
-        // Try to initialize MongoDB connection
         const initialized = await mongoDbService.initializeDatabase();
         
         if (initialized) {
-          // Get users from MongoDB
           const collection = mongoDbService.getCollection<UserData>(USERS_COLLECTION);
           const result = await collection.find({}).toArray();
           
           if (result && result.length > 0) {
             setUsers(result);
           } else {
-            // If no users in MongoDB, get from localStorage
-            loadFromLocalStorage();
-            // And save to MongoDB
-            const localUsers = getLocalStorageUsers();
-            for (const user of localUsers) {
+            const defaultUsers = [
+              { 
+                id: 1, 
+                username: "admin", 
+                role: "admin" as const,
+                permissions: {
+                  viewTransactions: true,
+                  addTransactions: true,
+                  editTransactions: true,
+                  deleteTransactions: true,
+                  manageCategories: true,
+                  manageUsers: true,
+                },
+                createdAt: new Date().toISOString(),
+                createdBy: null
+              },
+              { 
+                id: 2, 
+                username: "user", 
+                role: "user" as const,
+                permissions: {
+                  viewTransactions: true,
+                  addTransactions: true,
+                  editTransactions: false,
+                  deleteTransactions: false,
+                  manageCategories: false,
+                  manageUsers: false,
+                },
+                createdAt: new Date().toISOString(),
+                createdBy: null
+              },
+            ];
+            setUsers(defaultUsers);
+            
+            for (const user of defaultUsers) {
               await saveUserToMongoDB(user);
             }
+            
+            await saveCredentialsToMongoDB("admin", "admin");
+            await saveCredentialsToMongoDB("user", "user");
           }
         } else {
-          // Fallback to localStorage if MongoDB is not available
-          loadFromLocalStorage();
+          console.error("Failed to initialize MongoDB");
+          toast.error("Failed to connect to database");
         }
       } catch (error) {
         console.error("Error loading users:", error);
         toast.error("Failed to load users from database");
-        loadFromLocalStorage();
       } finally {
         setIsLoading(false);
       }
@@ -106,100 +134,6 @@ const UserManagement: React.FC = () => {
     loadUsers();
   }, []);
   
-  // Function to load users from localStorage
-  const loadFromLocalStorage = () => {
-    const storedUsers = localStorage.getItem("users");
-    if (storedUsers) {
-      try {
-        const parsedUsers = JSON.parse(storedUsers);
-        // Convert old user format to new format with permissions
-        const usersWithPermissions = parsedUsers.map((user: any) => {
-          if (!user.permissions) {
-            return {
-              ...user,
-              permissions: user.role === "admin" 
-                ? {
-                    viewTransactions: true,
-                    addTransactions: true,
-                    editTransactions: true,
-                    deleteTransactions: true,
-                    manageCategories: true,
-                    manageUsers: true,
-                  }
-                : {
-                    viewTransactions: true,
-                    addTransactions: true,
-                    editTransactions: false,
-                    deleteTransactions: false,
-                    manageCategories: false,
-                    manageUsers: false,
-                  },
-              createdAt: new Date().toISOString(),
-              createdBy: null
-            };
-          }
-          return user;
-        });
-        setUsers(usersWithPermissions);
-        localStorage.setItem("users", JSON.stringify(usersWithPermissions));
-      } catch (error) {
-        console.error("Failed to parse stored users:", error);
-        setUsers([]);
-      }
-    } else {
-      // Default users if none exist
-      const defaultUsers = [
-        { 
-          id: 1, 
-          username: "admin", 
-          role: "admin" as const,
-          permissions: {
-            viewTransactions: true,
-            addTransactions: true,
-            editTransactions: true,
-            deleteTransactions: true,
-            manageCategories: true,
-            manageUsers: true,
-          },
-          createdAt: new Date().toISOString(),
-          createdBy: null
-        },
-        { 
-          id: 2, 
-          username: "user", 
-          role: "user" as const,
-          permissions: {
-            viewTransactions: true,
-            addTransactions: true,
-            editTransactions: false,
-            deleteTransactions: false,
-            manageCategories: false,
-            manageUsers: false,
-          },
-          createdAt: new Date().toISOString(),
-          createdBy: null
-        },
-      ];
-      setUsers(defaultUsers);
-      localStorage.setItem("users", JSON.stringify(defaultUsers));
-    }
-  };
-  
-  // Get users from localStorage
-  const getLocalStorageUsers = (): UserData[] => {
-    const storedUsers = localStorage.getItem("users");
-    if (storedUsers) {
-      try {
-        return JSON.parse(storedUsers);
-      } catch (error) {
-        console.error("Failed to parse stored users:", error);
-        return [];
-      }
-    }
-    return [];
-  };
-  
-  // Save user to MongoDB
   const saveUserToMongoDB = async (userData: UserData): Promise<boolean> => {
     try {
       const collection = mongoDbService.getCollection<UserData>(USERS_COLLECTION);
@@ -211,7 +145,6 @@ const UserManagement: React.FC = () => {
     }
   };
   
-  // Save credentials to MongoDB
   const saveCredentialsToMongoDB = async (username: string, password: string): Promise<boolean> => {
     try {
       const collection = mongoDbService.getCollection<{username: string, password: string}>(CREDENTIALS_COLLECTION);
@@ -229,7 +162,6 @@ const UserManagement: React.FC = () => {
       return;
     }
 
-    // Check if username already exists
     if (users.some(user => user.username.toLowerCase() === newUsername.toLowerCase())) {
       toast.error("Username already exists");
       return;
@@ -262,16 +194,7 @@ const UserManagement: React.FC = () => {
 
     const updatedUsers = [...users, newUser];
     setUsers(updatedUsers);
-
-    // Store in localStorage
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
     
-    // Also store password (in a real app, this would be hashed and stored in a database)
-    const userCredentials = JSON.parse(localStorage.getItem("userCredentials") || "{}");
-    userCredentials[newUsername.toLowerCase()] = newPassword;
-    localStorage.setItem("userCredentials", JSON.stringify(userCredentials));
-    
-    // Save to MongoDB if connected
     try {
       const initialized = await mongoDbService.initializeDatabase();
       if (initialized) {
@@ -280,10 +203,10 @@ const UserManagement: React.FC = () => {
       }
     } catch (error) {
       console.error("Error saving to MongoDB:", error);
-      // Still continue as we saved to localStorage
+      toast.error("Failed to save user to database");
+      return;
     }
 
-    // Reset form
     setNewUsername("");
     setNewPassword("");
     setNewRole("user");
@@ -301,7 +224,6 @@ const UserManagement: React.FC = () => {
   };
 
   const handleDeleteUser = async (id: number, username: string) => {
-    // Prevent deleting the main admin account
     if (username.toLowerCase() === "admin") {
       toast.error("Cannot delete the main admin account");
       return;
@@ -309,14 +231,7 @@ const UserManagement: React.FC = () => {
 
     const updatedUsers = users.filter(user => user.id !== id);
     setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-
-    // Also remove from credentials
-    const userCredentials = JSON.parse(localStorage.getItem("userCredentials") || "{}");
-    delete userCredentials[username.toLowerCase()];
-    localStorage.setItem("userCredentials", JSON.stringify(userCredentials));
     
-    // Delete from MongoDB if connected
     try {
       const initialized = await mongoDbService.initializeDatabase();
       if (initialized) {
@@ -328,7 +243,8 @@ const UserManagement: React.FC = () => {
       }
     } catch (error) {
       console.error("Error deleting from MongoDB:", error);
-      // Still continue as we removed from localStorage
+      toast.error("Failed to delete user from database");
+      return;
     }
 
     toast.success(`User ${username} deleted successfully`);
@@ -355,9 +271,7 @@ const UserManagement: React.FC = () => {
     });
     
     setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
     
-    // Update in MongoDB if connected
     try {
       const initialized = await mongoDbService.initializeDatabase();
       if (initialized) {
@@ -369,6 +283,8 @@ const UserManagement: React.FC = () => {
       }
     } catch (error) {
       console.error("Error updating permissions in MongoDB:", error);
+      toast.error("Failed to update permissions in database");
+      return;
     }
     
     setPermissionsDialogOpen(false);
@@ -435,7 +351,6 @@ const UserManagement: React.FC = () => {
                   value={newRole} 
                   onValueChange={(value) => {
                     setNewRole(value as "admin" | "user");
-                    // Set default permissions based on role
                     if (value === "admin") {
                       setPermissions({
                         viewTransactions: true,
@@ -571,7 +486,6 @@ const UserManagement: React.FC = () => {
         </CardContent>
       </Card>
       
-      {/* Permissions Dialog */}
       <Dialog open={permissionsDialogOpen} onOpenChange={setPermissionsDialogOpen}>
         <DialogContent>
           <DialogHeader>

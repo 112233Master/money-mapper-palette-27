@@ -1,10 +1,8 @@
 
-// Import only what's needed for browser compatibility
 import { MongoClient, Db, Collection } from 'mongodb';
 import { Category, Transaction } from '../context/FinanceContext';
 
 // MongoDB connection configuration
-// Replace this with your actual MongoDB connection string in your environment
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 const DB_NAME = process.env.MONGODB_DB_NAME || 'finance_app';
 
@@ -16,21 +14,12 @@ export const COLLECTIONS = {
   CREDENTIALS: 'credentials'
 };
 
-// Improved browser detection that's more reliable
-const isBrowser = typeof window !== 'undefined' && 
-                 typeof window.document !== 'undefined';
-
-// MongoDB client instance (will remain null in browser environment)
+// MongoDB client instance
 let client: MongoClient | null = null;
 let db: Db | null = null;
 
 // Test connection
 export const testConnection = async (): Promise<boolean> => {
-  if (isBrowser) {
-    console.log('MongoDB connection test not available in browser environment');
-    return false;
-  }
-
   try {
     const testClient = new MongoClient(MONGODB_URI);
     await testClient.connect();
@@ -45,11 +34,6 @@ export const testConnection = async (): Promise<boolean> => {
 
 // Initialize database
 export const initializeDatabase = async (): Promise<boolean> => {
-  if (isBrowser) {
-    console.log('MongoDB cannot be initialized in browser environment');
-    return false;
-  }
-  
   if (client && db) {
     console.log('MongoDB already connected');
     return true;
@@ -69,11 +53,6 @@ export const initializeDatabase = async (): Promise<boolean> => {
 
 // Get collection with proper typing
 export const getCollection = <T>(collectionName: string): Collection<T> => {
-  if (isBrowser) {
-    // Return a mock Collection for browser environments
-    return createBrowserMockCollection<T>(collectionName);
-  }
-  
   if (!db) {
     throw new Error('Database not initialized. Call initializeDatabase() first.');
   }
@@ -82,10 +61,6 @@ export const getCollection = <T>(collectionName: string): Collection<T> => {
 
 // Close connection
 export const closeConnection = async (): Promise<void> => {
-  if (isBrowser) {
-    return;
-  }
-  
   if (client) {
     await client.close();
     client = null;
@@ -101,106 +76,6 @@ export const checkMongoDBSetup = (): { isConfigured: boolean, connectionString: 
     isConfigured: hasCustomURI,
     connectionString: MONGODB_URI
   };
-};
-
-// Browser-specific mock Collection implementation
-const createBrowserMockCollection = <T>(collectionName: string): Collection<T> => {
-  const storageKey = `mongo_${collectionName}`;
-  
-  const getStoredData = (): T[] => {
-    try {
-      const data = localStorage.getItem(storageKey);
-      return data ? JSON.parse(data) : [];
-    } catch (error) {
-      console.error(`Error reading ${collectionName} from localStorage:`, error);
-      return [];
-    }
-  };
-  
-  const saveData = (data: T[]): void => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(data));
-    } catch (error) {
-      console.error(`Error saving ${collectionName} to localStorage:`, error);
-    }
-  };
-  
-  // Return a simplified mock of the MongoDB Collection interface
-  return {
-    find: (query = {}) => ({
-      toArray: async () => {
-        console.log(`Browser mock: Getting data from localStorage for ${collectionName}`);
-        const data = getStoredData();
-        // Basic query filtering (very simplified)
-        if (Object.keys(query).length === 0) {
-          return data;
-        }
-        
-        return data.filter(item => {
-          return Object.entries(query).every(([key, value]) => {
-            // Very basic query matching
-            if (typeof value === 'object' && value !== null) {
-              // Not implementing complex queries in the browser mock
-              return true;
-            }
-            return (item as any)[key] === value;
-          });
-        });
-      },
-      sort: () => ({
-        limit: () => ({
-          toArray: async () => {
-            const data = getStoredData();
-            return data.length > 0 ? [data[data.length - 1]] : [];
-          }
-        })
-      })
-    }),
-    findOne: async (query = {}) => {
-      console.log(`Browser mock: Finding one item in localStorage for ${collectionName}`);
-      const data = getStoredData();
-      return data.find(item => {
-        return Object.entries(query).every(([key, value]) => {
-          return (item as any)[key] === value;
-        });
-      }) || null;
-    },
-    insertOne: async (doc) => {
-      console.log(`Browser mock: Inserting into localStorage for ${collectionName}`);
-      const data = getStoredData();
-      data.push(doc);
-      saveData(data);
-      return { acknowledged: true, insertedId: Math.random().toString() };
-    },
-    updateOne: async (query, update) => {
-      console.log(`Browser mock: Updating in localStorage for ${collectionName}`);
-      const data = getStoredData();
-      let modifiedCount = 0;
-      
-      const updatedData = data.map(item => {
-        if (Object.entries(query).every(([key, value]) => (item as any)[key] === value)) {
-          modifiedCount++;
-          return { ...item, ...update.$set };
-        }
-        return item;
-      });
-      
-      saveData(updatedData);
-      return { modifiedCount, matchedCount: modifiedCount };
-    },
-    deleteOne: async (query) => {
-      console.log(`Browser mock: Deleting from localStorage for ${collectionName}`);
-      const data = getStoredData();
-      const initialLength = data.length;
-      
-      const filteredData = data.filter(item => {
-        return !Object.entries(query).every(([key, value]) => (item as any)[key] === value);
-      });
-      
-      saveData(filteredData);
-      return { deletedCount: initialLength - filteredData.length };
-    }
-  } as unknown as Collection<T>;
 };
 
 export default {

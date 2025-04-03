@@ -58,10 +58,6 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [dbInitialized, setDbInitialized] = useState(false);
-  
-  // Browser detection 
-  const isBrowser = typeof window !== 'undefined' && 
-                   typeof window.document !== 'undefined';
 
   // Calculate financial summary
   const calculateSummary = (transactions: Transaction[]): FinanceSummary => {
@@ -107,31 +103,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const init = async () => {
       try {
-        if (isBrowser) {
-          console.log("Running in browser environment, using localStorage for data");
-          // Load from localStorage in browser environment
-          try {
-            // Load categories
-            const storedCategories = localStorage.getItem("mongo_categories");
-            if (storedCategories) {
-              setCategories(JSON.parse(storedCategories));
-            }
-            
-            // Load transactions
-            const storedTransactions = localStorage.getItem("mongo_transactions");
-            if (storedTransactions) {
-              const parsedTransactions = JSON.parse(storedTransactions);
-              setTransactions(parsedTransactions);
-              setSummary(calculateSummary(parsedTransactions));
-              setRecentTransactions(getRecentTransactions(parsedTransactions));
-            }
-          } catch (error) {
-            console.error("Error loading data from localStorage:", error);
-          }
-          return;
-        }
-        
-        // Initialize MongoDB - only in Node.js environment
+        // Initialize MongoDB
         const initialized = await mongoDbService.initializeDatabase();
         if (initialized) {
           setDbInitialized(true);
@@ -161,11 +133,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     // Clean up on unmount
     return () => {
-      if (!isBrowser) {
-        mongoDbService.closeConnection();
-      }
+      mongoDbService.closeConnection();
     };
-  }, [isBrowser]);
+  }, []);
 
   // Update summary and recent transactions when data changes
   useEffect(() => {
