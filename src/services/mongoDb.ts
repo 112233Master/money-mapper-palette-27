@@ -212,7 +212,6 @@ const createMockCollection = <T>(collectionName: string): Collection<T> => {
   } as unknown as Collection<T>;
 };
 
-// Now update the MongoDBSetupGuide component to correctly display browser environment info
 export default {
   testConnection,
   initializeDatabase,
