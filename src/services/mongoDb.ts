@@ -16,8 +16,12 @@ export const COLLECTIONS = {
   CREDENTIALS: 'credentials'
 };
 
-// Check if running in browser - more reliable detection
-const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+// More robust browser detection
+const isBrowser = () => {
+  return typeof window !== 'undefined' && 
+         typeof window.document !== 'undefined' && 
+         typeof process === 'undefined';
+};
 
 // MongoDB client instance (will remain null in browser environment)
 let client: MongoClient | null = null;
@@ -25,7 +29,7 @@ let db: Db | null = null;
 
 // Test connection
 export const testConnection = async (): Promise<boolean> => {
-  if (isBrowser) {
+  if (isBrowser()) {
     console.log('MongoDB connection test not available in browser environment');
     return false;
   }
@@ -44,7 +48,7 @@ export const testConnection = async (): Promise<boolean> => {
 
 // Initialize database
 export const initializeDatabase = async (): Promise<boolean> => {
-  if (isBrowser) {
+  if (isBrowser()) {
     console.log('MongoDB cannot be initialized in browser environment');
     return false;
   }
@@ -68,7 +72,7 @@ export const initializeDatabase = async (): Promise<boolean> => {
 
 // Get collection with proper typing
 export const getCollection = <T>(collectionName: string): Collection<T> => {
-  if (isBrowser) {
+  if (isBrowser()) {
     // Return a mock Collection for browser environments
     return createBrowserMockCollection<T>(collectionName);
   }
@@ -81,7 +85,7 @@ export const getCollection = <T>(collectionName: string): Collection<T> => {
 
 // Close connection
 export const closeConnection = async (): Promise<void> => {
-  if (isBrowser) {
+  if (isBrowser()) {
     return;
   }
   

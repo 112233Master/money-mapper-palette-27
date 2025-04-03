@@ -10,9 +10,18 @@ const MongoDBSetupGuide = () => {
   const [connectionStatus, setConnectionStatus] = React.useState<'unknown' | 'success' | 'error'>('unknown');
   const [isLoading, setIsLoading] = React.useState(false);
   const { isConfigured, connectionString } = checkMongoDBSetup();
-  const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+  
+  // Improved browser detection
+  const isBrowser = typeof window !== 'undefined' && 
+                    typeof window.document !== 'undefined' && 
+                    typeof process === 'undefined';
 
   const testDatabaseConnection = async () => {
+    if (isBrowser) {
+      setConnectionStatus('error');
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const connected = await testConnection();
@@ -26,7 +35,7 @@ const MongoDBSetupGuide = () => {
   };
 
   React.useEffect(() => {
-    // Only attempt to test connection on server, never in browser
+    // Only attempt to test connection in server environment
     if (!isBrowser) {
       testDatabaseConnection();
     } else {
@@ -96,13 +105,26 @@ const MongoDBSetupGuide = () => {
             <li>Create a new database named <code>finance_app</code> (or choose your own name)</li>
             <li>Create collections: <code>categories</code>, <code>transactions</code>, <code>users</code>, and <code>credentials</code></li>
             <li>Get your MongoDB connection string (URI)</li>
-            <li>Configure the application with your connection string using environment variables:
+            <li>Set up environment variables for your application:
               <ul className="list-disc pl-5 mt-2">
                 <li><code>MONGODB_URI</code>: Your MongoDB connection string</li>
                 <li><code>MONGODB_DB_NAME</code>: Your database name (defaults to 'finance_app')</li>
               </ul>
             </li>
-            <li className="font-medium">For full functionality, deploy this application to a server environment that supports MongoDB connection.</li>
+            <li className="font-medium">For local development:
+              <ul className="list-disc pl-5 mt-2">
+                <li>Install MongoDB Community Edition locally</li>
+                <li>Create a <code>.env</code> file in your project root with the variables above</li>
+                <li>Start your server with <code>npm run dev</code></li>
+              </ul>
+            </li>
+            <li className="font-medium">For production:
+              <ul className="list-disc pl-5 mt-2">
+                <li>Deploy to a Node.js environment (Vercel, Netlify, Heroku, etc.)</li>
+                <li>Set environment variables in your hosting platform</li>
+                <li>Connect to MongoDB Atlas for cloud database hosting</li>
+              </ul>
+            </li>
           </ol>
         </div>
       </CardContent>
