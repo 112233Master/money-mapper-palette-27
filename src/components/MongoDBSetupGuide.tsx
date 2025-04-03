@@ -10,7 +10,7 @@ const MongoDBSetupGuide = () => {
   const [connectionStatus, setConnectionStatus] = React.useState<'unknown' | 'success' | 'error'>('unknown');
   const [isLoading, setIsLoading] = React.useState(false);
   const { isConfigured, connectionString } = checkMongoDBSetup();
-  const isBrowser = typeof window !== 'undefined';
+  const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
   const testDatabaseConnection = async () => {
     setIsLoading(true);
@@ -26,10 +26,11 @@ const MongoDBSetupGuide = () => {
   };
 
   React.useEffect(() => {
-    // Test connection on component mount if not in browser
+    // Only attempt to test connection on server, never in browser
     if (!isBrowser) {
       testDatabaseConnection();
     } else {
+      // In browser, immediately set status to browser environment
       setConnectionStatus('error');
     }
   }, [isBrowser]);

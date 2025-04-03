@@ -1,4 +1,5 @@
 
+// Import only what's needed for browser compatibility
 import { MongoClient, Db, Collection } from 'mongodb';
 import { Category, Transaction } from '../context/FinanceContext';
 
@@ -15,8 +16,8 @@ export const COLLECTIONS = {
   CREDENTIALS: 'credentials'
 };
 
-// Check if running in browser
-const isBrowser = typeof window !== 'undefined';
+// Check if running in browser - more reliable detection
+const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
 // MongoDB client instance (will remain null in browser environment)
 let client: MongoClient | null = null;
@@ -123,6 +124,7 @@ const createMockCollection = <T>(collectionName: string): Collection<T> => {
     }
   };
   
+  // Return a simplified mock of the MongoDB Collection interface
   return {
     find: (query = {}) => ({
       toArray: async () => {
@@ -210,6 +212,7 @@ const createMockCollection = <T>(collectionName: string): Collection<T> => {
   } as unknown as Collection<T>;
 };
 
+// Now update the MongoDBSetupGuide component to correctly display browser environment info
 export default {
   testConnection,
   initializeDatabase,
