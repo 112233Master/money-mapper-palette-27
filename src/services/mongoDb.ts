@@ -16,12 +16,9 @@ export const COLLECTIONS = {
   CREDENTIALS: 'credentials'
 };
 
-// More robust browser detection
-const isBrowser = () => {
-  return typeof window !== 'undefined' && 
-         typeof window.document !== 'undefined' && 
-         typeof process === 'undefined';
-};
+// Improved browser detection that's more reliable
+const isBrowser = typeof window !== 'undefined' && 
+                 typeof window.document !== 'undefined';
 
 // MongoDB client instance (will remain null in browser environment)
 let client: MongoClient | null = null;
@@ -29,7 +26,7 @@ let db: Db | null = null;
 
 // Test connection
 export const testConnection = async (): Promise<boolean> => {
-  if (isBrowser()) {
+  if (isBrowser) {
     console.log('MongoDB connection test not available in browser environment');
     return false;
   }
@@ -48,7 +45,7 @@ export const testConnection = async (): Promise<boolean> => {
 
 // Initialize database
 export const initializeDatabase = async (): Promise<boolean> => {
-  if (isBrowser()) {
+  if (isBrowser) {
     console.log('MongoDB cannot be initialized in browser environment');
     return false;
   }
@@ -72,7 +69,7 @@ export const initializeDatabase = async (): Promise<boolean> => {
 
 // Get collection with proper typing
 export const getCollection = <T>(collectionName: string): Collection<T> => {
-  if (isBrowser()) {
+  if (isBrowser) {
     // Return a mock Collection for browser environments
     return createBrowserMockCollection<T>(collectionName);
   }
@@ -85,7 +82,7 @@ export const getCollection = <T>(collectionName: string): Collection<T> => {
 
 // Close connection
 export const closeConnection = async (): Promise<void> => {
-  if (isBrowser()) {
+  if (isBrowser) {
     return;
   }
   
@@ -132,6 +129,7 @@ const createBrowserMockCollection = <T>(collectionName: string): Collection<T> =
   return {
     find: (query = {}) => ({
       toArray: async () => {
+        console.log(`Browser mock: Getting data from localStorage for ${collectionName}`);
         const data = getStoredData();
         // Basic query filtering (very simplified)
         if (Object.keys(query).length === 0) {
@@ -159,6 +157,7 @@ const createBrowserMockCollection = <T>(collectionName: string): Collection<T> =
       })
     }),
     findOne: async (query = {}) => {
+      console.log(`Browser mock: Finding one item in localStorage for ${collectionName}`);
       const data = getStoredData();
       return data.find(item => {
         return Object.entries(query).every(([key, value]) => {
@@ -167,12 +166,14 @@ const createBrowserMockCollection = <T>(collectionName: string): Collection<T> =
       }) || null;
     },
     insertOne: async (doc) => {
+      console.log(`Browser mock: Inserting into localStorage for ${collectionName}`);
       const data = getStoredData();
       data.push(doc);
       saveData(data);
       return { acknowledged: true, insertedId: Math.random().toString() };
     },
     updateOne: async (query, update) => {
+      console.log(`Browser mock: Updating in localStorage for ${collectionName}`);
       const data = getStoredData();
       let modifiedCount = 0;
       
@@ -188,6 +189,7 @@ const createBrowserMockCollection = <T>(collectionName: string): Collection<T> =
       return { modifiedCount, matchedCount: modifiedCount };
     },
     deleteOne: async (query) => {
+      console.log(`Browser mock: Deleting from localStorage for ${collectionName}`);
       const data = getStoredData();
       const initialLength = data.length;
       

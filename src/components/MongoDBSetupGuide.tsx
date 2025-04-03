@@ -11,12 +11,12 @@ const MongoDBSetupGuide = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const { isConfigured, connectionString } = checkMongoDBSetup();
   
-  // Improved browser detection
+  // Enhanced browser detection - checking both window existence and absence of Node.js process
   const isBrowser = typeof window !== 'undefined' && 
-                    typeof window.document !== 'undefined' && 
-                    typeof process === 'undefined';
+                    typeof window.document !== 'undefined';
 
   const testDatabaseConnection = async () => {
+    // Don't attempt connection in browser
     if (isBrowser) {
       setConnectionStatus('error');
       return;
@@ -35,7 +35,7 @@ const MongoDBSetupGuide = () => {
   };
 
   React.useEffect(() => {
-    // Only attempt to test connection in server environment
+    // Only attempt to test connection in server environment, never in browser
     if (!isBrowser) {
       testDatabaseConnection();
     } else {
@@ -58,11 +58,12 @@ const MongoDBSetupGuide = () => {
             <AlertTitle>Browser Environment Detected</AlertTitle>
             <AlertDescription>
               <p className="mb-2"><strong>Important:</strong> MongoDB requires a server environment to operate.</p>
-              <p>Currently using browser localStorage as a temporary data store. For persistent data storage and full functionality:</p>
+              <p>This application is currently running in a browser environment where MongoDB connections are not possible. For full functionality:</p>
               <ul className="list-disc pl-5 mt-2">
-                <li>Deploy this application to a Node.js environment</li>
-                <li>Use a MongoDB Atlas database</li>
+                <li>Clone this repository to your local machine</li>
+                <li>Set up MongoDB Atlas or local MongoDB instance</li>
                 <li>Configure with environment variables</li>
+                <li>Run with Node.js</li>
               </ul>
             </AlertDescription>
           </Alert>
