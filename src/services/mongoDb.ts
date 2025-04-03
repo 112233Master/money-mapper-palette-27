@@ -45,7 +45,7 @@ export const testConnection = async (): Promise<boolean> => {
 // Initialize database
 export const initializeDatabase = async (): Promise<boolean> => {
   if (isBrowser) {
-    console.log('Using localStorage for data persistence in browser environment');
+    console.log('MongoDB cannot be initialized in browser environment');
     return false;
   }
   
@@ -66,11 +66,11 @@ export const initializeDatabase = async (): Promise<boolean> => {
   }
 };
 
-// Get collection with proper typing (mocked in browser)
+// Get collection with proper typing
 export const getCollection = <T>(collectionName: string): Collection<T> => {
   if (isBrowser) {
     // Return a mock Collection for browser environments
-    return createMockCollection<T>(collectionName);
+    return createBrowserMockCollection<T>(collectionName);
   }
   
   if (!db) {
@@ -102,8 +102,8 @@ export const checkMongoDBSetup = (): { isConfigured: boolean, connectionString: 
   };
 };
 
-// Mock Collection implementation for browser environments
-const createMockCollection = <T>(collectionName: string): Collection<T> => {
+// Browser-specific mock Collection implementation
+const createBrowserMockCollection = <T>(collectionName: string): Collection<T> => {
   const storageKey = `mongo_${collectionName}`;
   
   const getStoredData = (): T[] => {
@@ -135,22 +135,12 @@ const createMockCollection = <T>(collectionName: string): Collection<T> => {
         }
         
         return data.filter(item => {
-          // Very basic query matching
           return Object.entries(query).every(([key, value]) => {
-            if (key === '$regex' && typeof value === 'object') {
-              // Handle regex for username search
-              const regex = value as RegExp;
-              return regex.test((item as any).username);
-            }
-            
+            // Very basic query matching
             if (typeof value === 'object' && value !== null) {
-              // Handle range queries like $gte, $lte
-              const conditions = value as Record<string, any>;
-              if (conditions.$gte && conditions.$lte) {
-                return (item as any)[key] >= conditions.$gte && (item as any)[key] <= conditions.$lte;
-              }
+              // Not implementing complex queries in the browser mock
+              return true;
             }
-            
             return (item as any)[key] === value;
           });
         });
@@ -168,11 +158,6 @@ const createMockCollection = <T>(collectionName: string): Collection<T> => {
       const data = getStoredData();
       return data.find(item => {
         return Object.entries(query).every(([key, value]) => {
-          if (key === '$regex' && typeof value === 'object') {
-            // Handle regex for username search
-            const regex = value as RegExp;
-            return regex.test((item as any).username);
-          }
           return (item as any)[key] === value;
         });
       }) || null;

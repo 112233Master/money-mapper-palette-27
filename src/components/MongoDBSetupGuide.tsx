@@ -40,7 +40,7 @@ const MongoDBSetupGuide = () => {
       <CardHeader>
         <CardTitle>MongoDB Setup Guide</CardTitle>
         <CardDescription>
-          Configure your MongoDB connection to get started with Money Mapper
+          Configure your MongoDB connection for Money Mapper
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -48,8 +48,13 @@ const MongoDBSetupGuide = () => {
           <Alert variant="destructive">
             <AlertTitle>Browser Environment Detected</AlertTitle>
             <AlertDescription>
-              MongoDB client cannot be used directly in a browser environment. The application will use localStorage as a fallback for data storage.
-              For a full MongoDB implementation, this application needs to be run in a Node.js environment or use a serverless/backend service.
+              <p className="mb-2"><strong>Important:</strong> MongoDB requires a server environment to operate.</p>
+              <p>Currently using browser localStorage as a temporary data store. For persistent data storage and full functionality:</p>
+              <ul className="list-disc pl-5 mt-2">
+                <li>Deploy this application to a Node.js environment</li>
+                <li>Use a MongoDB Atlas database</li>
+                <li>Configure with environment variables</li>
+              </ul>
             </AlertDescription>
           </Alert>
         )}
@@ -85,20 +90,19 @@ const MongoDBSetupGuide = () => {
         <Separator />
 
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">Setup Instructions</h3>
+          <h3 className="text-lg font-medium">MongoDB Setup Instructions</h3>
           <ol className="list-decimal pl-5 space-y-2">
-            <li>Create a MongoDB Atlas account or use your existing MongoDB server</li>
+            <li>Create a MongoDB Atlas account or use your own MongoDB server</li>
             <li>Create a new database named <code>finance_app</code> (or choose your own name)</li>
             <li>Create collections: <code>categories</code>, <code>transactions</code>, <code>users</code>, and <code>credentials</code></li>
             <li>Get your MongoDB connection string (URI)</li>
-            <li>Configure the application with your connection string using either:
+            <li>Configure the application with your connection string using environment variables:
               <ul className="list-disc pl-5 mt-2">
-                <li>Environment variable: <code>MONGODB_URI</code></li>
-                <li>If using a custom database name, set <code>MONGODB_DB_NAME</code></li>
+                <li><code>MONGODB_URI</code>: Your MongoDB connection string</li>
+                <li><code>MONGODB_DB_NAME</code>: Your database name (defaults to 'finance_app')</li>
               </ul>
             </li>
-            <li className="font-medium text-orange-600">Note: MongoDB client cannot run directly in browser environments. 
-              For production use, deploy this application to a Node.js environment or use a backend service.</li>
+            <li className="font-medium">For full functionality, deploy this application to a server environment that supports MongoDB connection.</li>
           </ol>
         </div>
       </CardContent>
