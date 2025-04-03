@@ -18,7 +18,7 @@ export const getAllCategories = async (): Promise<Category[]> => {
 export const getCategoryById = async (id: number | string): Promise<Category | null> => {
   try {
     const collection = mongoDb.getCollection<Category>(COLLECTION_NAME);
-    let query;
+    let query: any = {};
     
     if (typeof id === 'string') {
       if (ObjectId.isValid(id)) {
@@ -57,7 +57,7 @@ export const createCategory = async (name: string): Promise<Category> => {
 export const updateCategory = async (id: number | string, name: string): Promise<boolean> => {
   try {
     const collection = mongoDb.getCollection<Category>(COLLECTION_NAME);
-    let query;
+    let query: any = {};
     
     if (typeof id === 'string') {
       if (ObjectId.isValid(id)) {
@@ -80,7 +80,7 @@ export const updateCategory = async (id: number | string, name: string): Promise
 export const deleteCategory = async (id: number | string): Promise<boolean> => {
   try {
     const collection = mongoDb.getCollection<Category>(COLLECTION_NAME);
-    let query;
+    let query: any = {};
     
     if (typeof id === 'string') {
       if (ObjectId.isValid(id)) {

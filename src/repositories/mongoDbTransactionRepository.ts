@@ -67,7 +67,7 @@ export const createTransaction = async (transaction: Omit<Transaction, "id" | "c
 export const updateTransaction = async (id: number | string, updates: Partial<Transaction>): Promise<boolean> => {
   try {
     const collection = mongoDb.getCollection<Transaction>(COLLECTION_NAME);
-    let query;
+    let query: any = {};
     
     if (typeof id === 'string') {
       if (ObjectId.isValid(id)) {
@@ -99,7 +99,7 @@ export const updateTransaction = async (id: number | string, updates: Partial<Tr
 export const deleteTransaction = async (id: number | string): Promise<boolean> => {
   try {
     const collection = mongoDb.getCollection<Transaction>(COLLECTION_NAME);
-    let query;
+    let query: any = {};
     
     if (typeof id === 'string') {
       if (ObjectId.isValid(id)) {

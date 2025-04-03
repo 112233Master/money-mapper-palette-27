@@ -10,6 +10,7 @@ const MongoDBSetupGuide = () => {
   const [connectionStatus, setConnectionStatus] = React.useState<'unknown' | 'success' | 'error'>('unknown');
   const [isLoading, setIsLoading] = React.useState(false);
   const { isConfigured, connectionString } = checkMongoDBSetup();
+  const isBrowser = typeof window !== 'undefined';
 
   const testDatabaseConnection = async () => {
     setIsLoading(true);
@@ -25,9 +26,13 @@ const MongoDBSetupGuide = () => {
   };
 
   React.useEffect(() => {
-    // Test connection on component mount
-    testDatabaseConnection();
-  }, []);
+    // Test connection on component mount if not in browser
+    if (!isBrowser) {
+      testDatabaseConnection();
+    } else {
+      setConnectionStatus('error');
+    }
+  }, [isBrowser]);
 
   return (
     <Card className="w-full max-w-3xl mx-auto mt-8">
@@ -38,7 +43,17 @@ const MongoDBSetupGuide = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {connectionStatus === 'error' && (
+        {isBrowser && (
+          <Alert variant="destructive">
+            <AlertTitle>Browser Environment Detected</AlertTitle>
+            <AlertDescription>
+              MongoDB client cannot be used directly in a browser environment. The application will use localStorage as a fallback for data storage.
+              For a full MongoDB implementation, this application needs to be run in a Node.js environment or use a serverless/backend service.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {connectionStatus === 'error' && !isBrowser && (
           <Alert variant="destructive">
             <AlertTitle>Connection Error</AlertTitle>
             <AlertDescription>
@@ -73,7 +88,7 @@ const MongoDBSetupGuide = () => {
           <ol className="list-decimal pl-5 space-y-2">
             <li>Create a MongoDB Atlas account or use your existing MongoDB server</li>
             <li>Create a new database named <code>finance_app</code> (or choose your own name)</li>
-            <li>Create two collections: <code>categories</code> and <code>transactions</code></li>
+            <li>Create collections: <code>categories</code>, <code>transactions</code>, <code>users</code>, and <code>credentials</code></li>
             <li>Get your MongoDB connection string (URI)</li>
             <li>Configure the application with your connection string using either:
               <ul className="list-disc pl-5 mt-2">
@@ -81,13 +96,16 @@ const MongoDBSetupGuide = () => {
                 <li>If using a custom database name, set <code>MONGODB_DB_NAME</code></li>
               </ul>
             </li>
+            <li className="font-medium text-orange-600">Note: MongoDB client cannot run directly in browser environments. 
+              For production use, deploy this application to a Node.js environment or use a backend service.</li>
           </ol>
         </div>
       </CardContent>
       <CardFooter>
         <Button 
           onClick={testDatabaseConnection} 
-          disabled={isLoading}
+          disabled={isLoading || isBrowser}
+          title={isBrowser ? "Testing not available in browser environment" : "Test connection"}
         >
           {isLoading ? 'Testing...' : 'Test Connection'}
         </Button>

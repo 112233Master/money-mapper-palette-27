@@ -86,11 +86,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return user.permissions ? user.permissions[permission] : false;
   };
 
-  // In a real application, this would communicate with your backend
+  // Login function
   const login = async (username: string, password: string) => {
     setLoading(true);
     try {
-      // Try to initialize MongoDB connection
+      // Try to initialize MongoDB connection (will return false in browser)
       let foundUser = null;
       let isPasswordValid = false;
       
