@@ -7,10 +7,10 @@ import { useAuth } from "@/context/AuthContext";
 import { Navigate } from "react-router-dom";
 
 const Users: React.FC = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, hasPermission } = useAuth();
 
-  // Redirect non-admin users to dashboard
-  if (!isAdmin) {
+  // Redirect non-admin users who don't have manageUsers permission
+  if (!isAdmin && !hasPermission("manageUsers")) {
     return <Navigate to="/" />;
   }
 
